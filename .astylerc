@@ -1,0 +1,14 @@
+style=attach
+max-code-length=80
+break-blocks
+#pad-oper
+indent=spaces=4
+suffix=none
+max-instatement-indent=120
+add-brackets
+pad-header
+unpad-paren
+convert-tabs
+close-templates
+indent-col1-comments
+indent-switches
