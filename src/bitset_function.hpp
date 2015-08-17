@@ -59,17 +59,17 @@ public:
             mask = mask << 1;
         }
     }
-    bool operator==(const bitset_function<D, A, ElementType> &other) const {
+    bool operator==(const bitset_function<D, A, ElementType>& other) const {
         return this->storage == other.storage;
     }
-    bool operator!=(const bitset_function<D, A, ElementType> &other) const {
+    bool operator!=(const bitset_function<D, A, ElementType>& other) const {
         return this->storage != other.storage;
     }
 };
 
 template <uint64_t D, uint64_t A, typename T, typename ElementType = uint64_t>
 std::array<T, space_per_function<D, A, T>::of_type>
-bitset_function_to_array(bitset_function<D, A, ElementType> &f) {
+bitset_function_to_array(bitset_function<D, A, ElementType>& f) {
     const uint64_t width = sizeof(T) * 8;
     T res = 0;
     std::array<T, space_per_function<D, A, T>::of_type> ret;
@@ -96,7 +96,7 @@ bitset_function_to_array(bitset_function<D, A, ElementType> &f) {
 
 template <uint64_t D, uint64_t A, typename T, typename ElementType = uint64_t>
 bitset_function<D, A, ElementType> array_to_bitset_function(
-    std::array<T, space_per_function<D, A, T>::of_type> &arr) {
+    std::array<T, space_per_function<D, A, T>::of_type>& arr) {
     const uint64_t width = sizeof(T) * 8;
     bitset_function<D, A, ElementType> f;
 

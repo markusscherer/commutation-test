@@ -25,13 +25,13 @@ void expect_string(std::string expected) {
           "Expected \"" + expected + "\", got \"" + s + "\" instead.");
 }
 
-template <typename T> bool safe_read(T &x, std::istream &in = std::cin) {
+template <typename T> bool safe_read(T& x, std::istream& in = std::cin) {
     in >> x;
     check(in.good(), "In safe_read (most likely expected numeral).");
     return true;
 }
 
-template <typename T> bool try_read(T &x) {
+template <typename T> bool try_read(T& x) {
     std::cin >> x;
 
     if (!std::cin.good()) {
@@ -43,7 +43,7 @@ template <typename T> bool try_read(T &x) {
 }
 
 template <typename T, typename C = uint64_t>
-void print_iterable(T x, std::ostream &out = std::cout) {
+void print_iterable(T x, std::ostream& out = std::cout) {
     for (auto it = x.begin(); it != x.end(); ++it) {
         out << static_cast<uint64_t>(*it) << " ";
     }
@@ -52,7 +52,7 @@ void print_iterable(T x, std::ostream &out = std::cout) {
 }
 
 template <uint64_t D, uint64_t A, typename ElementType = uint64_t>
-void increment_array(std::array<ElementType, A> &args) {
+void increment_array(std::array<ElementType, A>& args) {
     for (int64_t i = A - 1; i >= 0; --i) {
         ++args[i];
 

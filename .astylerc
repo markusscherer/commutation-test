@@ -6,6 +6,7 @@ indent=spaces=4
 suffix=none
 max-instatement-indent=120
 add-brackets
+align-reference=type
 pad-header
 unpad-paren
 convert-tabs
