@@ -1,10 +1,10 @@
 CC=g++
-CFLAGS=-g -std=c++11 -Wall -Wpedantic
+CFLAGS=-g -std=c++11 -O3 -Wall -Wpedantic
 
-random_functions: src/random_functions.cpp src/code_generators.hpp src/misc_tools.hpp src/constants.hpp
+bin/random_functions: src/random_functions.cpp src/bitset_function.hpp src/code_generators.hpp src/misc_tools.hpp src/constants.hpp
 	$(CC) $(CFLAGS) src/random_functions.cpp -o bin/random_functions
 
-packer: src/packer.cpp src/functions.hpp src/code_generators.hpp src/misc_tools.hpp src/constants.hpp
+bin/packer: src/packer.cpp src/bitset_function.hpp src/code_generators.hpp src/misc_tools.hpp src/constants.hpp
 	$(CC) $(CFLAGS) src/packer.cpp -o bin/packer
 
 cppcheck:

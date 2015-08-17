@@ -1,5 +1,5 @@
-#ifndef FUNCTIONS_HPP_MSDA
-#define FUNCTIONS_HPP_MSDA
+#ifndef BITSET_FUNCTION_HPP_MSDA
+#define BITSET_FUNCTION_HPP_MSDA
 
 #include <cstdint>
 #include <algorithm>

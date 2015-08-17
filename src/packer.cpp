@@ -5,7 +5,7 @@
 #include <vector>
 #include <array>
 
-#include "functions.hpp"
+#include "bitset_function.hpp"
 #include "code_generators.hpp"
 #include "misc_tools.hpp"
 

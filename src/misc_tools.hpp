@@ -1,6 +1,9 @@
 #ifndef MISC_TOOLS_HPP_MSDA
 #define MISC_TOOLS_HPP_MSDA
 
+#include <iostream>
+#include <sstream>
+
 template <typename T> std::string to_string(T t) {
     std::stringstream s;
     s << t;
@@ -36,6 +39,15 @@ template <typename T> bool try_read(T &x) {
     }
 
     return true;
+}
+
+template <typename T, typename C = uint64_t>
+void print_iterable(T x, std::ostream &out = std::cout) {
+    for (auto it = x.begin(); it != x.end(); ++it) {
+        out << static_cast<uint64_t>(*it) << " ";
+    }
+
+    out << std::endl;
 }
 
 #endif
