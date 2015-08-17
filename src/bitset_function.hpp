@@ -112,4 +112,60 @@ bitset_function<D, A, ElementType> array_to_bitset_function(
     return f;
 }
 
+template <uint64_t D, uint64_t A, typename ElementType = uint64_t>
+void increment_function(bitset_function<D, A, ElementType>& f) {
+    std::array<ElementType, A> args;
+    args.fill(0);
+
+    for (uint64_t l = 0; l < pow(D, A); ++l) {
+        ElementType c = f.eval(args);
+
+        if (c != D - 1) {
+            f.set(args, c + 1);
+
+            args.fill(0);
+
+            for (uint64_t k = 0; k < l; k++) {
+                f.set(args, 0);
+                increment_array<D, A, ElementType>(args);
+            }
+
+            break;
+        }
+
+        increment_array<D, A, ElementType>(args);
+    }
+}
+
+template <typename F> struct function_tools {
+    static bool is_max(F& f);
+};
+
+template <uint64_t A, typename ElementType>
+struct function_tools<bitset_function<4, A, ElementType>> {
+    static bool is_max(bitset_function<4, A, ElementType>& f) {
+        return f.storage.all();
+    }
+};
+
+template <uint64_t D, uint64_t A, typename ElementType>
+struct function_tools<bitset_function<D, A, ElementType>> {
+    static bool is_max(bitset_function<D, A, ElementType>& f) {
+        std::array<ElementType, A> args;
+        args.fill(0);
+
+        for (uint64_t l = 0; l < pow(D, A); ++l) {
+            ElementType c = f.eval(args);
+
+            if (c != D - 1) {
+                return false;
+            }
+
+            increment_array<D, A, ElementType>(args);
+        }
+
+        return true;
+    }
+};
+
 #endif

@@ -1,6 +1,11 @@
 CC=g++
 CFLAGS=-g -std=c++11 -O3 -Wall -Wpedantic
 
+all: bin/comtest bin/packer bin/random_functions
+
+bin/comtest: src/comtest.cpp src/code_generators.hpp src/misc_tools.hpp src/constants.hpp src/primitive_solving_policy.hpp src/bitset_function.hpp
+	$(CC) $(CFLAGS) src/comtest.cpp -o bin/comtest
+
 bin/random_functions: src/random_functions.cpp src/bitset_function.hpp src/code_generators.hpp src/misc_tools.hpp src/constants.hpp
 	$(CC) $(CFLAGS) src/random_functions.cpp -o bin/random_functions
 
