@@ -86,20 +86,7 @@ template <uint64_t D, uint64_t A> struct read_and_print {
                 }
 
                 std::cout << f->eval(args) << std::endl;
-
-                for (int64_t i = A - 1; i >= 0; --i) {
-                    ++args[i];
-
-                    if (args[i] < D) {
-                        break;
-                    }
-                }
-
-                for (uint64_t i = 0; i < A; ++i) {
-                    if (args[i] == D) {
-                        args[i] = 0;
-                    }
-                }
+                increment_array<D, A, element_type>(args);
             }
 
             std::cout << std::endl;

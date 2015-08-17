@@ -2,6 +2,7 @@
 #define MISC_TOOLS_HPP_MSDA
 
 #include <iostream>
+#include <array>
 #include <sstream>
 
 template <typename T> std::string to_string(T t) {
@@ -50,4 +51,20 @@ void print_iterable(T x, std::ostream &out = std::cout) {
     out << std::endl;
 }
 
+template <uint64_t D, uint64_t A, typename ElementType = uint64_t>
+void increment_array(std::array<ElementType, A> &args) {
+    for (int64_t i = A - 1; i >= 0; --i) {
+        ++args[i];
+
+        if (args[i] < D) {
+            break;
+        }
+    }
+
+    for (uint64_t i = 0; i < A; ++i) {
+        if (args[i] == D) {
+            args[i] = 0;
+        }
+    }
+}
 #endif

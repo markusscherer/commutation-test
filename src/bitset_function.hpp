@@ -10,6 +10,7 @@
 #include <iostream>
 
 #include "constants.hpp"
+#include "misc_tools.hpp"
 
 template <uint64_t D, uint64_t A, typename ElementType, class C>
 ElementType get_pos(C args) {
@@ -57,6 +58,12 @@ public:
             storage[i] = mask & res;
             mask = mask << 1;
         }
+    }
+    bool operator==(const bitset_function<D, A, ElementType> &other) const {
+        return this->storage == other.storage;
+    }
+    bool operator!=(const bitset_function<D, A, ElementType> &other) const {
+        return this->storage != other.storage;
     }
 };
 
