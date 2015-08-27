@@ -43,12 +43,15 @@ template <typename T> bool try_read(T& x) {
 }
 
 template <typename T, typename C = uint64_t>
-void print_iterable(T x, std::ostream& out = std::cout) {
+void print_iterable(T x, std::ostream& out = std::cout, bool bl = true,
+                    std::string sep = " ") {
     for (auto it = x.begin(); it != x.end(); ++it) {
-        out << static_cast<uint64_t>(*it) << " ";
+        out << static_cast<uint64_t>(*it) << sep;
     }
 
-    out << std::endl;
+    if (bl) {
+        out << std::endl;
+    }
 }
 
 template <uint64_t D, uint64_t A, typename ElementType = uint64_t>

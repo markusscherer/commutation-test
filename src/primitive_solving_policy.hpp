@@ -28,6 +28,8 @@ struct primitive_solving_policy {
         std::array<element_type, F2::arity> args2;
         element_type r1;
         element_type r2;
+        //        args1.fill(0);
+        //        args2.fill(0);
 
         for (uint64_t m = 0; m < matrix_count; ++m) {
             for (uint64_t i = 0; i < F2::arity; ++i) {
@@ -36,7 +38,11 @@ struct primitive_solving_policy {
                 }
 
                 args2[i] = f1.eval(args1);
+                print_iterable(args1, std::cout, false);
+                std::cout << args2[i] << std::endl;
             }
+
+            std::cout << std::endl;
 
             r2 = f2.eval(args2);
 
@@ -46,7 +52,11 @@ struct primitive_solving_policy {
                 }
 
                 args1[i] = f2.eval(args2);
+                //                print_iterable(args2, std::cout, false);
+                //                std::cout << args1[i] << std::endl;
             }
+
+            //            std::cout << "......." << std::endl;
 
             r1 = f1.eval(args1);
 

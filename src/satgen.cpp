@@ -10,6 +10,7 @@
 #include "bitset_function.hpp"
 #include "primitive_solving_policy.hpp"
 #include "misc_tools.hpp"
+#include "matrix_accessor.hpp"
 
 std::map<std::string, std::set<std::string>> matches;
 
@@ -59,62 +60,75 @@ void commutation_test(std::vector<bitset_function<D, A1>>& vec1,
 
 int main() {
     const uint64_t D = 2;
-    //    const uint64_t A = 4;
+    const uint64_t A1 = 2;
+    const uint64_t A2 = 2;
 
     auto vec1 = read_functions<D, 1>("tests/data/all_functions.2.1.bin");
     auto vec2 = read_functions<D, 2>("tests/data/all_functions.2.2.bin");
     auto vec3 = read_functions<D, 3>("tests/data/all_functions.2.3.bin");
     auto vec4 = read_functions<3, 3>("tests/data/rand000.1.3.3.bin");
 
-    //    auto f = vec3[183];
-    //
-    //    auto fc =
-    //        primitive_solving_policy::find_next_commuting<decltype(f),
-    //        decltype(f)>(
-    //            f);
-    //
-    //    std::cout << fc.storage.to_string() << " "
-    //              << primitive_solving_policy::commutes(f, fc) << std::endl;
-
-    //    commutation_test<D, 1, 1>(vec1, vec1);
-    //    commutation_test<D, 1, 2>(vec1, vec2);
-    //    commutation_test<D, 1, 3>(vec1, vec3);
-    //    commutation_test<D, 2, 2>(vec2, vec2);
-    //    commutation_test<D, 2, 3>(vec2, vec3);
-    //    commutation_test<D, 3, 3>(vec3, vec3);
-    //
-    //    for (const auto& it : matches) {
-    //        std::cout << it.first << ": ";
-    //
-    //        for (const auto& ot : it.second) {
-    //            std::cout << ot << " ";
-    //        }
-    //
-    //        std::cout << std::endl;
-    //    }
     auto f1 = vec2[3];
-    auto f2 = vec2[5];
 
-    std::array<uint64_t, 2> args;
-    args.fill(0);
+    const uint64_t cell_count = A1 * A2;
+    const uint64_t matrix_count = pow(D, cell_count);
 
-    for (int i = 0; i < 4; ++i) {
-        print_iterable(args, std::cout, false);
-        std::cout << f1.eval(args) << std::endl;
-        increment_array<2, 2>(args);
+    std::array<uint64_t, cell_count> matrix;
+    matrix.fill(0);
+    std::array<uint64_t, A1> args1;
+    std::array<uint64_t, A2> args2;
+
+    std::array<uint64_t, A1> tmp;
+    tmp.fill(0);
+    typedef matrix_accessor<A1, A2, decltype(matrix)::value_type, row_policy> row;
+    typedef matrix_accessor<A1, A2, decltype(matrix)::value_type, column_policy>
+    column;
+
+
+    std::cout << "p cnf " << space_per_function<D,A2>::bits << " " << matrix_count * cpow(D,A1) << std::endl; 
+
+    for (uint64_t m = 0; m < matrix_count; ++m) {
+        for (uint64_t i = 0; i < A2; ++i) {
+            auto rw = row(matrix, i);
+            args2[i] = f1.eval(rw);
+            print_iterable(rw, std::cerr, false);
+            std::cerr << args2[i] << std::endl;
+        }
+
+        for (uint64_t i = 0; i < A1; ++i) {
+            std::cerr << get_pos<D, A2, uint64_t>(column(matrix, i));
+            std::cerr << " ";
+        }
+
+        std::cerr << std::endl;
+        std::cerr << std::endl;
+
+        for (uint64_t i = 0; i < pow(D, A1); ++i) {
+            std::cout << "c f_";
+            print_iterable(tmp, std::cout, false, "");
+            std::cout << " = " << f1.eval(tmp) << "   g_";
+            print_iterable(args2, std::cout, true, "");
+
+            for (uint64_t j = 0; j < A1; ++j) {
+                if (!tmp[j]) {
+                    std::cout << "-";
+                }
+
+                std::cout << get_pos<D, A2, uint64_t>(column(matrix, j)) + 1;
+                std::cout << " ";
+            }
+
+            if (f1.eval(tmp)) {
+                std::cout << "-";
+            }
+
+            std::cout << get_pos<D, A2, uint64_t>(args2) + 1 << " ";
+            std::cout << "0" << std::endl;
+            increment_array<D, A1>(tmp);
+        }
+
+        increment_array<D, cell_count>(matrix);
     }
 
-    std::cout << "----" << std::endl;
-    args.fill(0);
-
-    for (int i = 0; i < 4; ++i) {
-        print_iterable(args, std::cout, false);
-        std::cout << f2.eval(args) << std::endl;
-        increment_array<2, 2>(args);
-    }
-
-    std::cout << "----" << std::endl;
-
-    std::cout << primitive_solving_policy::commutes(f1, f2) << std::endl;
     return 0;
 }
