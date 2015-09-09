@@ -1,3 +1,6 @@
 [submodule "tools/YCM-Generator"]
 	path = tools/YCM-Generator
 	url = https://github.com/rdnetto/YCM-Generator
+[submodule "external/cryptominisat"]
+	path = external/cryptominisat
+	url = https://github.com/msoos/cryptominisat
