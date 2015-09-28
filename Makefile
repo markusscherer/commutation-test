@@ -1,13 +1,18 @@
+INCLUDES=./external/cryptominisat/build/include/
+LIBPATH=./external/cryptominisat/build/lib
 CC=g++
-CFLAGS=-g -std=c++11 -Wall -Wpedantic
+CFLAGS=-g -std=c++11 -Wall -Wpedantic -I $(INCLUDES) -L $(LIBPATH)
 
 all: bin/comtest bin/packer bin/random_functions bin/satgen
 
-bin/comtest: src/comtest.cpp src/code_generators.hpp src/misc_tools.hpp src/constants.hpp src/primitive_solving_policy.hpp src/bitset_function.hpp
-	$(CC) $(CFLAGS) src/comtest.cpp -o bin/comtest
+bin/comtest: src/comtest.cpp src/code_generators.hpp src/misc_tools.hpp src/constants.hpp src/primitive_solving_policy.hpp src/sat_solving_policy.hpp src/bitset_function.hpp src/sat_solving_policy.hpp
+	$(CC) $(CFLAGS) -lcryptominisat4 src/comtest.cpp -o bin/comtest
 
-bin/satgen: src/satgen.cpp src/code_generators.hpp src/misc_tools.hpp src/constants.hpp src/primitive_solving_policy.hpp src/bitset_function.hpp src/matrix_accessor.hpp
-	$(CC) $(CFLAGS) src/satgen.cpp -o bin/satgen
+bin/satgen: src/satgen.cpp src/code_generators.hpp src/misc_tools.hpp src/constants.hpp src/primitive_solving_policy.hpp src/bitset_function.hpp src/matrix_accessor.hpp src/sat_solving_policy.hpp
+	$(CC) $(CFLAGS) -lcryptominisat4 src/satgen.cpp -o bin/satgen
+
+bin/all_ternary: src/all_ternary.cpp src/code_generators.hpp src/misc_tools.hpp src/constants.hpp src/primitive_solving_policy.hpp src/bitset_function.hpp src/matrix_accessor.hpp src/sat_solving_policy.hpp
+	$(CC) $(CFLAGS) src/all_ternary.cpp -o bin/all_ternary
 
 bin/random_functions: src/random_functions.cpp src/bitset_function.hpp src/code_generators.hpp src/misc_tools.hpp src/constants.hpp
 	$(CC) $(CFLAGS) src/random_functions.cpp -o bin/random_functions
