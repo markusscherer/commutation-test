@@ -110,8 +110,7 @@ void usage() {
     std::cout << "Read function in packed format from in-file and and "
               << "print it in human-readable to out-file." << std::endl
               << std::endl;
-    std::cout << "Print this help" << std::endl
-              << std::endl;
+    std::cout << "Print this help" << std::endl << std::endl;
     std::cout << "If no filenames are given, stdin and stdout are assumed."
               << std::endl
               << std::endl;

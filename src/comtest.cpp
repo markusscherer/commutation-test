@@ -9,6 +9,7 @@
 #include "constants.hpp"
 #include "bitset_function.hpp"
 #include "primitive_solving_policy.hpp"
+#include "simd_solving_policy.hpp"
 #include "misc_tools.hpp"
 
 std::map<std::string, std::set<std::string>> matches;
@@ -58,63 +59,36 @@ void commutation_test(std::vector<bitset_function<D, A1>>& vec1,
 }
 
 int main() {
-    const uint64_t D = 2;
-    //    const uint64_t A = 4;
+    const uint64_t D = 4;
+    const uint64_t A = 4;
 
-    auto vec1 = read_functions<D, 1>("tests/data/all_functions.2.1.bin");
-    auto vec2 = read_functions<D, 2>("tests/data/all_functions.2.2.bin");
-    auto vec3 = read_functions<D, 3>("tests/data/all_functions.2.3.bin");
-    auto vec4 = read_functions<3, 3>("tests/data/rand000.1.3.3.bin");
+    array_function<D, A, uint64_t> f1;
+    array_function<D, A, uint64_t> f2;
 
-    //    auto f = vec3[183];
-    //
-    //    auto fc =
-    //        primitive_solving_policy::find_next_commuting<decltype(f),
-    //        decltype(f)>(
-    //            f);
-    //
-    //    std::cout << fc.storage.to_string() << " "
-    //              << primitive_solving_policy::commutes(f, fc) << std::endl;
+    f1.storage.fill(0);
+    f2.storage.fill(0);
 
-    //    commutation_test<D, 1, 1>(vec1, vec1);
-    //    commutation_test<D, 1, 2>(vec1, vec2);
-    //    commutation_test<D, 1, 3>(vec1, vec3);
-    //    commutation_test<D, 2, 2>(vec2, vec2);
-    //    commutation_test<D, 2, 3>(vec2, vec3);
-    //    commutation_test<D, 3, 3>(vec3, vec3);
-    //
-    //    for (const auto& it : matches) {
-    //        std::cout << it.first << ": ";
-    //
-    //        for (const auto& ot : it.second) {
-    //            std::cout << ot << " ";
-    //        }
-    //
-    //        std::cout << std::endl;
+    std::array<uint64_t, A> args;
+    args.fill(0);
+
+    // for (uint64_t i = 0; i < cpow(D, A); ++i) {
+    //    print_iterable(args, std::cout, false);
+    //    std::cout << f1.eval(args) << std::endl;
+    //    increment_array<D, A>(args);
+    //}
+
+    args.fill(0);
+
+    //    for (uint64_t i = 0; i < cpow(D, A); ++i) {
+    //        print_iterable(args, std::cout, false);
+    //        std::cout << f2.eval(args) << std::endl;
+    //        increment_array<D, A>(args);
     //    }
-    auto f1 = vec2[3];
-    auto f2 = vec2[5];
 
-    std::array<uint64_t, 2> args;
-    args.fill(0);
+    //    std::cout << "----" << std::endl;
 
-    for (int i = 0; i < 4; ++i) {
-        print_iterable(args, std::cout, false);
-        std::cout << f1.eval(args) << std::endl;
-        increment_array<2, 2>(args);
-    }
-
-    std::cout << "----" << std::endl;
-    args.fill(0);
-
-    for (int i = 0; i < 4; ++i) {
-        print_iterable(args, std::cout, false);
-        std::cout << f2.eval(args) << std::endl;
-        increment_array<2, 2>(args);
-    }
-
-    std::cout << "----" << std::endl;
-
-    std::cout << primitive_solving_policy::commutes(f1, f2) << std::endl;
+    std::cout << simd_solving_policy<D, A, A, array_function, uint64_t>::commutes(
+                  f1, f2)
+              << std::endl;
     return 0;
 }

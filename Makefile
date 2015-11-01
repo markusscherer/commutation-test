@@ -1,11 +1,11 @@
 INCLUDES=./external/cryptominisat/build/include/
 LIBPATH=./external/cryptominisat/build/lib
-CC=g++
-CFLAGS=-g -std=c++11 -Wall -Wpedantic -I $(INCLUDES) -L $(LIBPATH)
+CC=clang++
+CFLAGS=-g -std=c++11 -Wall -Wpedantic -I $(INCLUDES) -L $(LIBPATH) -mavx2 -msse3 -O3
 
 all: bin/comtest bin/packer bin/random_functions bin/satgen
 
-bin/comtest: src/comtest.cpp src/code_generators.hpp src/misc_tools.hpp src/constants.hpp src/primitive_solving_policy.hpp src/sat_solving_policy.hpp src/bitset_function.hpp src/sat_solving_policy.hpp
+bin/comtest: src/comtest.cpp src/code_generators.hpp src/misc_tools.hpp src/constants.hpp src/primitive_solving_policy.hpp src/sat_solving_policy.hpp src/bitset_function.hpp src/sat_solving_policy.hpp src/simd_solving_policy.hpp src/array_function.hpp src/simd_tools.hpp
 	$(CC) $(CFLAGS) -lcryptominisat4 src/comtest.cpp -o bin/comtest
 
 bin/satgen: src/satgen.cpp src/code_generators.hpp src/misc_tools.hpp src/constants.hpp src/primitive_solving_policy.hpp src/bitset_function.hpp src/matrix_accessor.hpp src/sat_solving_policy.hpp

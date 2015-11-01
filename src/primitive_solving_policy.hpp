@@ -38,11 +38,11 @@ struct primitive_solving_policy {
                 }
 
                 args2[i] = f1.eval(args1);
-                print_iterable(args1, std::cout, false);
-                std::cout << args2[i] << std::endl;
+                //                print_iterable(args1, std::cout, false);
+                //                std::cout << args2[i] << std::endl;
             }
 
-            std::cout << std::endl;
+            //            std::cout << std::endl;
 
             r2 = f2.eval(args2);
 

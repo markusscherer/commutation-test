@@ -75,7 +75,8 @@ struct dimacs_output_sat_policy {
     static bitset_function<D, A2> calculate_function(state) {
         bitset_function<D, A2> f;
         std::cerr << "Warning: method not implemented; returned function is "
-                  "constant zero." << std::endl;
+                  "constant zero."
+                  << std::endl;
         return f;
     }
 };

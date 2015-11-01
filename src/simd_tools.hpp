@@ -1,0 +1,135 @@
+#ifndef SIMD_TOOLS_HPP_MSDA
+#define SIMD_TOOLS_HPP_MSDA
+
+#include <iostream>
+#include <iomanip>
+#include <cstdint>
+
+template <class T, uint64_t S, uint64_t C>
+inline void array_to_si128_impl(std::array<T, S>& arr) {
+    static_assert(S == C, "Array must have the right size!");
+}
+
+template <class T, uint64_t S, uint64_t C, class R, class... RR>
+inline void array_to_si128_impl(std::array<T, S>& arr, R& reg, RR& ... rest) {
+    static_assert(sizeof(T) * (S - C) == sizeof(R) * (sizeof...(rest) + 1),
+                  "Array must have the right size!");
+
+    const uint64_t elements_per_register = sizeof(R) / sizeof(T);
+
+    reg = _mm_load_si128(reinterpret_cast<__m128i *>(arr.data() + C));
+    array_to_si128_impl<T, S, C + elements_per_register, RR...>(arr, rest...);
+}
+
+template <class T, uint64_t S, class R, class... RR>
+inline void array_to_si128(std::array<T, S>& arr, R& reg, RR& ... rest) {
+    static_assert(sizeof(T) * S == sizeof(R) * (sizeof...(rest) + 1),
+                  "Array must have the right size!");
+
+    array_to_si128_impl<T, S, 0, R, RR...>(arr, reg, rest...);
+}
+
+template <typename T> void print_register(__m128i r) {
+    const int size = 16 / sizeof(T);
+    T buff[size];
+    __m128i *dd = reinterpret_cast<__m128i *>(buff);
+
+    _mm_storeu_si128(dd, r);
+
+    for (int i = size - 1; i >= 0; --i) {
+        std::cout << (uint64_t)buff[i] << " ";
+    }
+
+    std::cout << std::endl;
+}
+
+inline uint32_t ems2b(uint8_t i) {
+    return ((i & 0x0C) >> 2);
+}
+
+inline uint32_t els2b(uint8_t i) {
+    return (i & 0x03);
+}
+
+void print_matrices(__m128i matl, __m128i math) {
+    uint8_t b1[16];
+    uint8_t b2[16];
+    __m128i *p1 = reinterpret_cast<__m128i *>(b1);
+    __m128i *p2 = reinterpret_cast<__m128i *>(b2);
+
+    _mm_storeu_si128(p1, math);
+    _mm_storeu_si128(p2, matl);
+
+    std::cout << std::setw(2);
+
+    for (int i = 15; i >= 0; --i) {
+        if (i % 4 == 3) {
+            std::cout << "   ";
+        }
+
+        std::cout << ems2b(b1[i]) << " ";
+    }
+
+    std::cout << std::endl;
+
+    for (int i = 15; i >= 0; --i) {
+        if (i % 4 == 3) {
+            std::cout << "   ";
+        }
+
+        std::cout << els2b(b1[i]) << " ";
+    }
+
+    std::cout << std::endl;
+
+    for (int i = 15; i >= 0; --i) {
+        if (i % 4 == 3) {
+            std::cout << "   ";
+        }
+
+        std::cout << ems2b(b2[i]) << " ";
+    }
+
+    std::cout << std::endl;
+
+    for (int i = 15; i >= 0; --i) {
+        if (i % 4 == 3) {
+            std::cout << "   ";
+        }
+
+        std::cout << els2b(b2[i]) << " ";
+    }
+
+    std::cout << std::endl;
+}
+
+void print_transposed_matrices(__m128i matl, __m128i math) {
+    uint8_t b1[16];
+    uint8_t b2[16];
+    __m128i *p1 = reinterpret_cast<__m128i *>(b1);
+    __m128i *p2 = reinterpret_cast<__m128i *>(b2);
+
+    _mm_storeu_si128(p1, math);
+    _mm_storeu_si128(p2, matl);
+
+    std::cout << std::setw(2);
+
+    for (int j = 3; j >= 0; --j) {
+        for (int i = 3; i >= 0; --i) {
+            const int c = i * 4 + j;
+            std::cout << "   ";
+            std::cout << ems2b(b1[c]);
+            std::cout << " ";
+            std::cout << els2b(b1[c]);
+            std::cout << " ";
+            std::cout << ems2b(b2[c]);
+            std::cout << " ";
+            std::cout << els2b(b2[c]);
+            std::cout << " ";
+        }
+
+        std::cout << std::endl;
+    }
+}
+
+#endif
