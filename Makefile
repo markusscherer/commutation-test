@@ -1,7 +1,7 @@
 INCLUDES=./external/cryptominisat/build/include/
 LIBPATH=./external/cryptominisat/build/lib
-CC=clang++
-CFLAGS=-g -std=c++11 -Wall -Wpedantic -I $(INCLUDES) -L $(LIBPATH) -mavx2 -msse3 -O3
+CC=g++
+CFLAGS=-g -std=c++11 -Wall -Wpedantic -mavx2 -msse3 -O3 -fwhole-program -I $(INCLUDES) -L $(LIBPATH)
 
 all: bin/comtest bin/packer bin/random_functions bin/satgen
 

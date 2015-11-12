@@ -60,35 +60,33 @@ void commutation_test(std::vector<bitset_function<D, A1>>& vec1,
 
 int main() {
     const uint64_t D = 4;
-    const uint64_t A = 4;
+    const uint64_t A1 = 4;
+    const uint64_t A2 = 4;
 
-    array_function<D, A, uint64_t> f1;
-    array_function<D, A, uint64_t> f2;
+#ifdef __clang__
+    typedef simd_solving_policy<
+    D, A1, A2, array_function, uint64_t,
+    incremental_matrix_generation_policy<D, A1, A2>,
+    incremental_transposed_matrix_generation_policy<D, A1, A2>,
+    brute_force_evaluation_policy<D, A1>,
+    brute_force_evaluation_policy<D, A2>,
+    accumulating_result_handling_policy<D, A1, A2>> solver;
+#else
+    typedef simd_solving_policy<
+    D, A1, A2, array_function, uint64_t,
+    incremental_matrix_generation_policy<D, A1, A2>,
+    incremental_transposed_matrix_generation_policy<D, A1, A2>,
+    selective_evaluation_policy<D, A1>,
+    selective_transposed_evaluation_policy<D, A2>,
+    accumulating_result_handling_policy<D, A1, A2>> solver;
+#endif
 
-    f1.storage.fill(0);
-    f2.storage.fill(0);
+    array_function<D, A1, uint64_t> f1;
+    array_function<D, A2, uint64_t> f2;
 
-    std::array<uint64_t, A> args;
-    args.fill(0);
+    f1.storage.fill(-1);
+    f2.storage.fill(-1);
 
-    // for (uint64_t i = 0; i < cpow(D, A); ++i) {
-    //    print_iterable(args, std::cout, false);
-    //    std::cout << f1.eval(args) << std::endl;
-    //    increment_array<D, A>(args);
-    //}
-
-    args.fill(0);
-
-    //    for (uint64_t i = 0; i < cpow(D, A); ++i) {
-    //        print_iterable(args, std::cout, false);
-    //        std::cout << f2.eval(args) << std::endl;
-    //        increment_array<D, A>(args);
-    //    }
-
-    //    std::cout << "----" << std::endl;
-
-    std::cout << simd_solving_policy<D, A, A, array_function, uint64_t>::commutes(
-                  f1, f2)
-              << std::endl;
+    std::cout << solver::commutes(f1, f2) << std::endl;
     return 0;
 }

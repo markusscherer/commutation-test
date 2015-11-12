@@ -5,6 +5,10 @@
 #include <iomanip>
 #include <cstdint>
 
+#include "emmintrin.h"
+#include "immintrin.h"
+#include "tmmintrin.h"
+
 template <class T, uint64_t S, uint64_t C>
 inline void array_to_si128_impl(std::array<T, S>& arr) {
     static_assert(S == C, "Array must have the right size!");
