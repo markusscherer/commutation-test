@@ -27,11 +27,11 @@ cppcheck:
 
 check-format:
 	rm -f .wrong-format
-	find src -name '*.[ch]pp' -execdir ../tools/check-format.sh '{}' ';'
+	find src -name '*.[ch]pp' -exec ./tools/check-format.sh '{}' ';'
 	[ ! -f .wrong-format ]
 
 fix-format:
-	find src -name '*.[ch]pp' -execdir ../tools/fix-format.sh '{}' ';'
+	find src -name '*.[ch]pp' -exec ./tools/fix-format.sh '{}' ';'
 
 generate-project-data:
 	./tools/YCM-Generator/config_gen.py .

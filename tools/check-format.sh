@@ -3,7 +3,7 @@
 orig=$(md5sum $1 | cut -f 1 -d ' ')
 tmpfile=$(mktemp)
 
-clang-format $1 2> /dev/null | astyle --options=../.astylerc > $tmpfile
+clang-format $1 2> /dev/null | astyle --options=.astylerc > $tmpfile
 #clang-format $1 > $tmpfile
 
 formatted=$(md5sum $tmpfile | cut -f 1 -d ' ')
