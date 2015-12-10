@@ -78,7 +78,7 @@ int main() {
     incremental_transposed_matrix_generation_policy<D, A1, A2>,
     selective_evaluation_policy<D, A1>,
     selective_transposed_evaluation_policy<D, A2>,
-    accumulating_result_handling_policy<D, A1, A2>> solver;
+    selective_accumulating_result_handling_policy<D, A1, A2>> solver;
 #endif
 
     array_function<D, A1, uint64_t> f1;

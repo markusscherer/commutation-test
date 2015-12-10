@@ -21,6 +21,7 @@
 #include "policies/brute_force_evaluation_policy.hpp"
 #include "policies/selective_evaluation_policy.hpp"
 #include "policies/accumulating_result_handling_policy.hpp"
+#include "policies/selective_accumulating_result_handling_policy.hpp"
 
 template <uint64_t D, uint64_t A1, uint64_t A2,
           template <uint64_t, uint64_t, typename> class FunctionType,
