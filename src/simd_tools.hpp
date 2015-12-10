@@ -136,4 +136,28 @@ void print_transposed_matrices(__m128i matl, __m128i math) {
     }
 }
 
+void print_result(__m128i res) {
+    uint8_t b1[16];
+    __m128i *p1 = reinterpret_cast<__m128i *>(b1);
+    _mm_storeu_si128(p1, res);
+
+    std::cout << std::setw(2);
+
+    for (int i = 15; i >= 0; i--) {
+        if (i % 4 == 3) {
+            std::cout << "   ";
+        }
+
+        std::cout << static_cast<uint32_t>(b1[i]) << " ";
+    }
+
+    std::cout << std::endl;
+}
+
+void print_matrices_and_results(__m128i res, __m128i matl, __m128i math) {
+    print_matrices(matl, math);
+    std::cout << "-----------------------------------------------" << std::endl;
+    print_result(res);
+}
+
 #endif
