@@ -43,7 +43,18 @@ inline void partial_eval(const __m128i& function, __m128i& res,
     __m128i partial_function = _mm_shuffle_epi32(function, function_select);
 
     // "blow up" function from packed 2-bit integers to packed 8-bit integers
+
+#ifdef __AVX2__
     partial_function = _mm_srlv_epi32(partial_function, shift128);
+#else
+    __m128i tmp = _mm_srli_epi32(partial_function, 2);
+    partial_function = _mm_blend_epi16(partial_function, tmp, 0xFC);
+    tmp = _mm_srli_epi32(tmp, 2);
+    partial_function = _mm_blend_epi16(partial_function, tmp, 0xF0);
+    tmp = _mm_srli_epi32(tmp, 2);
+    partial_function = _mm_blend_epi16(partial_function, tmp, 0xC0);
+#endif
+
     partial_function = _mm_and_si128(partial_function, epi8_2lsb_mask);
     partial_function = _mm_shuffle_epi8(partial_function, shuf128);
 
@@ -73,7 +84,16 @@ inline void partial_eval_with_selector(const __m128i& function, __m128i& res,
     __m128i partial_function = _mm_shuffle_epi32(function, function_select);
 
     // "blow up" function from packed 2-bit integers to packed 8-bit integers
+#ifdef __AVX2__
     partial_function = _mm_srlv_epi32(partial_function, shift128);
+#else
+    __m128i tmp = _mm_srli_epi32(partial_function, 2);
+    partial_function = _mm_blend_epi16(partial_function, tmp, 0xFC);
+    tmp = _mm_srli_epi32(tmp, 2);
+    partial_function = _mm_blend_epi16(partial_function, tmp, 0xF0);
+    tmp = _mm_srli_epi32(tmp, 2);
+    partial_function = _mm_blend_epi16(partial_function, tmp, 0xC0);
+#endif
     partial_function = _mm_and_si128(partial_function, epi8_2lsb_mask);
     partial_function = _mm_shuffle_epi8(partial_function, shuf128);
 
