@@ -83,14 +83,23 @@ private:
                                         __m128i& math, const __m128i& shuf128,
                                         const __m128i& const2020,
                                         const __m128i& constFFFF) {
+        // unite neighbouring 2-bit-integers to 4-integers
+        // afterwards every even 8-bit-field field of math contains a valid
+        // 4-bit integer
         math = _mm_shuffle_epi8(res, shuf128);
+#ifdef __AVX2__
         math = _mm_sllv_epi32(math, const2020);
+#else
+        __m128i tmp = _mm_slli_epi32(math, 2);
+        math = _mm_blend_epi16(math, tmp, 0xCC);
+#endif
         math = _mm_shuffle_epi8(math, shuf128);
-
         math = _mm_srli_epi32(math, 8);
         math = _mm_or_si128(math, res);
 
+        // write fields 0,4,8 and 12 to matl
         matl = _mm_and_si128(math, constFFFF);
+        // write fields 2,6,10 and 14 to math (at 0,4,8 and 12)
         math = _mm_srli_epi32(math, 16);
         math = _mm_and_si128(math, constFFFF);
     }
