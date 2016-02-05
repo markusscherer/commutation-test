@@ -13,6 +13,27 @@
 
 template <uint64_t D, uint64_t A> struct brute_force_evaluation_policy {};
 
+template <> struct brute_force_evaluation_policy<4, 3> {
+    typedef simd_evaluation_constants<4, 4> constants;
+    typedef simd_evaluation_registers<4, 3> registers;
+
+    inline static void init_registers(registers& r, array_function<4, 3> f) {
+        array_to_si128(f.storage, r.f0);
+    }
+
+    inline static void eval(__m128i& res, uint64_t matcount, __m128i& matl,
+                            __m128i& math, registers& r, const constants& c) {
+        partial_eval<0>(r.f0, res, c.epi8_2lsb_mask_128, c.shuf128, c.shift128,
+                        matl, math);
+        partial_eval<1>(r.f0, res, c.epi8_2lsb_mask_128, c.shuf128, c.shift128,
+                        matl, math);
+        partial_eval<2>(r.f0, res, c.epi8_2lsb_mask_128, c.shuf128, c.shift128,
+                        matl, math);
+        partial_eval<3>(r.f0, res, c.epi8_2lsb_mask_128, c.shuf128, c.shift128,
+                        matl, math);
+    }
+};
+
 template <> struct brute_force_evaluation_policy<4, 4> {
     typedef simd_evaluation_constants<4, 4> constants;
     typedef simd_evaluation_registers<4, 4> registers;
