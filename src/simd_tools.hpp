@@ -56,9 +56,7 @@ inline uint32_t els2b(uint8_t i) {
 }
 
 template <uint64_t A1, uint64_t A2>
-void print_matrices(__m128i matl, __m128i math);
-
-template <> void print_matrices<3, 3>(__m128i matl, __m128i math) {
+void print_matrices(__m128i matl, __m128i math) {
     uint8_t b1[16];
     uint8_t b2[16];
     __m128i *p1 = reinterpret_cast<__m128i *>(b1);
@@ -69,134 +67,71 @@ template <> void print_matrices<3, 3>(__m128i matl, __m128i math) {
 
     std::cout << std::setw(2);
 
-    for (int i = 15; i >= 0; --i) {
-        if (i % 4 == 3) {
-            std::cout << "     ";
-        } else {
-            std::cout << els2b(b1[i]) << " ";
-        }
+    switch (A1) {
+        case 4:
+            for (int i = 15; i >= 0; --i) {
+                if (i % 4 == 3) {
+                    std::cout << "   ";
+                }
+
+                if (i % 4 >= A2) {
+                    std::cout << "  ";
+                }
+
+                std::cout << ems2b(b1[i]) << " ";
+            }
+
+            std::cout << std::endl;
+
+        case 3:
+            for (int i = 15; i >= 0; --i) {
+                if (i % 4 == 3) {
+                    std::cout << "   ";
+                }
+
+                if (i % 4 >= A2) {
+                    std::cout << "  ";
+                } else {
+                    std::cout << els2b(b1[i]) << " ";
+                }
+            }
+
+            std::cout << std::endl;
+
+        case 2:
+            for (int i = 15; i >= 0; --i) {
+                if (i % 4 == 3) {
+                    std::cout << "   ";
+                }
+
+                if (i % 4 >= A2) {
+                    std::cout << "  ";
+                } else {
+                    std::cout << ems2b(b2[i]) << " ";
+                }
+            }
+
+            std::cout << std::endl;
+
+        case 1:
+            for (int i = 15; i >= 0; --i) {
+                if (i % 4 == 3) {
+                    std::cout << "   ";
+                }
+
+                if (i % 4 >= A2) {
+                    std::cout << "  ";
+                } else {
+                    std::cout << els2b(b2[i]) << " ";
+                }
+            }
+
+            std::cout << std::endl;
     }
-
-    std::cout << std::endl;
-
-    for (int i = 15; i >= 0; --i) {
-        if (i % 4 == 3) {
-            std::cout << "     ";
-        } else {
-            std::cout << ems2b(b2[i]) << " ";
-        }
-    }
-
-    std::cout << std::endl;
-
-    for (int i = 15; i >= 0; --i) {
-        if (i % 4 == 3) {
-            std::cout << "     ";
-        } else {
-            std::cout << els2b(b2[i]) << " ";
-        }
-    }
-
-    std::cout << std::endl;
-}
-
-template <> void print_matrices<3, 4>(__m128i matl, __m128i math) {
-    uint8_t b1[16];
-    uint8_t b2[16];
-    __m128i *p1 = reinterpret_cast<__m128i *>(b1);
-    __m128i *p2 = reinterpret_cast<__m128i *>(b2);
-
-    _mm_storeu_si128(p1, math);
-    _mm_storeu_si128(p2, matl);
-
-    std::cout << std::setw(2);
-
-    for (int i = 15; i >= 0; --i) {
-        if (i % 4 == 3) {
-            std::cout << "   ";
-        }
-
-        std::cout << els2b(b1[i]) << " ";
-    }
-
-    std::cout << std::endl;
-
-    for (int i = 15; i >= 0; --i) {
-        if (i % 4 == 3) {
-            std::cout << "   ";
-        }
-
-        std::cout << ems2b(b2[i]) << " ";
-    }
-
-    std::cout << std::endl;
-
-    for (int i = 15; i >= 0; --i) {
-        if (i % 4 == 3) {
-            std::cout << "   ";
-        }
-
-        std::cout << els2b(b2[i]) << " ";
-    }
-
-    std::cout << std::endl;
-}
-template <> void print_matrices<4, 4>(__m128i matl, __m128i math) {
-    uint8_t b1[16];
-    uint8_t b2[16];
-    __m128i *p1 = reinterpret_cast<__m128i *>(b1);
-    __m128i *p2 = reinterpret_cast<__m128i *>(b2);
-
-    _mm_storeu_si128(p1, math);
-    _mm_storeu_si128(p2, matl);
-
-    std::cout << std::setw(2);
-
-    for (int i = 15; i >= 0; --i) {
-        if (i % 4 == 3) {
-            std::cout << "   ";
-        }
-
-        std::cout << ems2b(b1[i]) << " ";
-    }
-
-    std::cout << std::endl;
-
-    for (int i = 15; i >= 0; --i) {
-        if (i % 4 == 3) {
-            std::cout << "   ";
-        }
-
-        std::cout << els2b(b1[i]) << " ";
-    }
-
-    std::cout << std::endl;
-
-    for (int i = 15; i >= 0; --i) {
-        if (i % 4 == 3) {
-            std::cout << "   ";
-        }
-
-        std::cout << ems2b(b2[i]) << " ";
-    }
-
-    std::cout << std::endl;
-
-    for (int i = 15; i >= 0; --i) {
-        if (i % 4 == 3) {
-            std::cout << "   ";
-        }
-
-        std::cout << els2b(b2[i]) << " ";
-    }
-
-    std::cout << std::endl;
 }
 
 template <uint64_t A1, uint64_t A2>
-void print_transposed_matrices(__m128i matl, __m128i math);
-
-template <> void print_transposed_matrices<3, 3>(__m128i matl, __m128i math) {
+void print_transposed_matrices(__m128i matl, __m128i math) {
     uint8_t b1[16];
     uint8_t b2[16];
     __m128i *p1 = reinterpret_cast<__m128i *>(b1);
@@ -207,74 +142,32 @@ template <> void print_transposed_matrices<3, 3>(__m128i matl, __m128i math) {
 
     std::cout << std::setw(2);
 
-    for (int j = 2; j >= 0; --j) {
-        for (int i = 3; i >= 0; --i) {
-            const int c = i * 4 + j;
-            std::cout << "     ";
-            std::cout << els2b(b1[c]);
-            std::cout << " ";
-            std::cout << ems2b(b2[c]);
-            std::cout << " ";
-            std::cout << els2b(b2[c]);
-            std::cout << " ";
-        }
-
-        std::cout << std::endl;
-    }
-}
-
-template <> void print_transposed_matrices<3, 4>(__m128i matl, __m128i math) {
-    uint8_t b1[16];
-    uint8_t b2[16];
-    __m128i *p1 = reinterpret_cast<__m128i *>(b1);
-    __m128i *p2 = reinterpret_cast<__m128i *>(b2);
-
-    _mm_storeu_si128(p1, math);
-    _mm_storeu_si128(p2, matl);
-
-    std::cout << std::setw(2);
-
-    for (int j = 2; j >= 0; --j) {
+    for (int j = (A1 - 1); j >= 0; --j) {
         for (int i = 3; i >= 0; --i) {
             const int c = i * 4 + j;
             std::cout << "   ";
-            std::cout << ems2b(b1[c]);
-            std::cout << " ";
-            std::cout << els2b(b1[c]);
-            std::cout << " ";
-            std::cout << ems2b(b2[c]);
-            std::cout << " ";
-            std::cout << els2b(b2[c]);
-            std::cout << " ";
-        }
 
-        std::cout << std::endl;
-    }
-}
+            for (int l = A2; l < 4; ++l) {
+                std::cout << "  ";
+            }
 
-template <> void print_transposed_matrices<4, 4>(__m128i matl, __m128i math) {
-    uint8_t b1[16];
-    uint8_t b2[16];
-    __m128i *p1 = reinterpret_cast<__m128i *>(b1);
-    __m128i *p2 = reinterpret_cast<__m128i *>(b2);
+            switch (A2) {
+                case 4:
+                    std::cout << ems2b(b1[c]);
+                    std::cout << " ";
 
-    _mm_storeu_si128(p1, math);
-    _mm_storeu_si128(p2, matl);
+                case 3:
+                    std::cout << els2b(b1[c]);
+                    std::cout << " ";
 
-    std::cout << std::setw(2);
+                case 2:
+                    std::cout << ems2b(b2[c]);
+                    std::cout << " ";
 
-    for (int j = 3; j >= 0; --j) {
-        for (int i = 3; i >= 0; --i) {
-            const int c = i * 4 + j;
-            std::cout << "   ";
-            std::cout << ems2b(b1[c]);
-            std::cout << " ";
-            std::cout << els2b(b1[c]);
-            std::cout << " ";
-            std::cout << ems2b(b2[c]);
-            std::cout << " ";
-            std::cout << els2b(b2[c]);
-            std::cout << " ";
+                case 1:
+                    std::cout << els2b(b2[c]);
+                    std::cout << " ";
+            }
         }
 
         std::cout << std::endl;
