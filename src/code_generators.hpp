@@ -54,4 +54,19 @@ struct domain_size_select {
     }
 };
 
+template <bool B, typename T> struct vc_tuple {
+    static const bool b = B;
+    typedef T type;
+};
+
+template <class... TT> struct variadic_conditional {
+    typedef std::nullptr_t type;
+};
+
+template <class C, class... TT> struct variadic_conditional<C, TT...> {
+    typedef typename std::conditional<
+    C::b, typename C::type, typename variadic_conditional<TT...>::type>::type
+    type;
+};
+
 #endif
