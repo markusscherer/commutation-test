@@ -9,6 +9,14 @@
 
 template <uint64_t, uint64_t> struct simd_evaluation_registers {};
 
+template <> struct simd_evaluation_registers<4, 1> {
+    __m128i f0;
+};
+
+template <> struct simd_evaluation_registers<4, 2> {
+    __m128i f0;
+};
+
 template <> struct simd_evaluation_registers<4, 3> {
     __m128i f0;
 };
