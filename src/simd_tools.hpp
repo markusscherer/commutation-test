@@ -74,7 +74,7 @@ void print_matrices(__m128i matl, __m128i math) {
                     std::cout << "   ";
                 }
 
-                if (i % 4 >= A2) {
+                if (static_cast<uint32_t>(i) % 4 >= A2) {
                     std::cout << "  ";
                 }
 
@@ -89,7 +89,7 @@ void print_matrices(__m128i matl, __m128i math) {
                     std::cout << "   ";
                 }
 
-                if (i % 4 >= A2) {
+                if (static_cast<uint32_t>(i) % 4 >= A2) {
                     std::cout << "  ";
                 } else {
                     std::cout << els2b(b1[i]) << " ";
@@ -104,7 +104,7 @@ void print_matrices(__m128i matl, __m128i math) {
                     std::cout << "   ";
                 }
 
-                if (i % 4 >= A2) {
+                if (static_cast<uint32_t>(i) % 4 >= A2) {
                     std::cout << "  ";
                 } else {
                     std::cout << ems2b(b2[i]) << " ";
@@ -119,7 +119,7 @@ void print_matrices(__m128i matl, __m128i math) {
                     std::cout << "   ";
                 }
 
-                if (i % 4 >= A2) {
+                if (static_cast<uint32_t>(i) % 4 >= A2) {
                     std::cout << "  ";
                 } else {
                     std::cout << els2b(b2[i]) << " ";
