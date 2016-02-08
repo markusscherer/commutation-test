@@ -153,7 +153,7 @@ int main(int argc, char **argv) {
             if (m == UNSET) {
                 m = PACK;
             } else {
-                std::cerr << "--More than one operation specified." << std::endl;
+                std::cerr << "More than one operation specified." << std::endl;
                 usage();
                 return 0;
             }
@@ -161,7 +161,7 @@ int main(int argc, char **argv) {
             if (m == UNSET) {
                 m = PRINT;
             } else {
-                std::cerr << "..More than one operation specified." << std::endl;
+                std::cerr << "More than one operation specified." << std::endl;
                 usage();
                 return 0;
             }
