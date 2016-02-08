@@ -49,7 +49,7 @@ inline static void result_to_matrix(const __m128i& res, __m128i& matl,
     // 4-bit integer
     matl = _mm_shuffle_epi8(res, shuf128);
 #ifdef __AVX2__
-    matl = _mm_sllv_epi32(math, const2020);
+    matl = _mm_sllv_epi32(matl, const2020);
 #else
     __m128i tmp = _mm_slli_epi32(matl, 2);
     matl = _mm_blend_epi16(matl, tmp, 0xCC);
