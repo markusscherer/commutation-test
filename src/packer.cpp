@@ -18,6 +18,7 @@ template <uint64_t D, uint64_t A> struct parse_and_write {
     static void run(uint64_t count) {
         for (uint64_t c = 0; c < count; ++c) {
             bitset_function<D, A> f;
+            f.storage.set();
 
             typedef typename bitset_function<D, A>::element_type element_type;
 
