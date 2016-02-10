@@ -7,8 +7,7 @@
 #include "constants.hpp"
 #include "bitset_function.hpp"
 
-template <uint64_t D, uint64_t A, typename ElementType = uint64_t>
-class array_function {
+template <uint64_t D, uint64_t A, typename ElementType> class array_function {
 public:
     typedef ElementType element_type;
     static const uint64_t domain_size = D;

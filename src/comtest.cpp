@@ -5,26 +5,39 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <string>
+#include <sstream>
 
+#include "array_function.hpp"
 #include "constants.hpp"
 #include "bitset_function.hpp"
-#include "primitive_solving_policy.hpp"
-#include "simd_solving_policy.hpp"
 #include "misc_tools.hpp"
+
+#include "comtest.config.hpp"
 
 std::map<std::string, std::set<std::string>> matches;
 
 template <uint64_t D, uint64_t A>
-std::vector<bitset_function<D, A>> read_functions(std::string filename) {
+std::vector<array_function<D, A, uint8_t>>
+read_functions(std::string filename) {
     const uint64_t array_size = space_per_function<D, A, uint8_t>::of_type;
-    std::vector<bitset_function<D, A>> vec;
-    std::array<uint8_t, array_size> arr;
+    std::vector<array_function<D, A, uint8_t>> vec;
 
     std::ifstream in;
-    in.open(filename);
+    in.open(filename, std::ifstream::ate);
+    std::streampos size = in.tellg();
+    in.seekg(std::ios_base::beg);
+
+    if (size % array_size != 0) {
+        std::cerr << "File contains incomplete function." << std::endl;
+    }
+
+    vec.resize(size / array_size);
+
+    uint64_t counter = 0;
 
     while (!in.eof()) {
-        in.read(reinterpret_cast<char *>(arr.data()), array_size);
+        in.read(reinterpret_cast<char *>(vec[counter].storage.data()), array_size);
 
         if (in.gcount() == 0) {
             break;
@@ -36,21 +49,21 @@ std::vector<bitset_function<D, A>> read_functions(std::string filename) {
             exit(1);
         }
 
-        vec.push_back(array_to_bitset_function<D, A, uint8_t>(arr));
+        ++counter;
     }
 
     return vec;
 }
 
 template <uint64_t D, uint64_t A1, uint64_t A2>
-void commutation_test(std::vector<bitset_function<D, A1>>& vec1,
-                      std::vector<bitset_function<D, A2>>& vec2) {
+void commutation_test(std::vector<array_function<D, A1, uint8_t>>& vec1,
+                      std::vector<array_function<D, A2, uint8_t>>& vec2) {
     for (uint64_t i = 0; i < vec1.size(); ++i) {
-        for (uint64_t j = 0; j < vec2.size(); ++j) {
+        for (uint64_t j = A1 != A2 ? 0 : i; j < vec2.size(); ++j) {
             std::string id1 = to_string(i) + "/" + to_string(A1);
             std::string id2 = to_string(j) + "/" + to_string(A2);
 
-            if (primitive_solving_policy::commutes(vec1[i], vec2[j])) {
+            if (solver<D, A1, A2>::commutes(vec1[i], vec2[j])) {
                 matches[id1].insert(id2);
                 matches[id2].insert(id1);
             }
@@ -58,35 +71,139 @@ void commutation_test(std::vector<bitset_function<D, A1>>& vec1,
     }
 }
 
-int main() {
+const uint64_t MAX_ARITY = 4;
+
+int main(int argc, char **argv) {
     const uint64_t D = 4;
-    const uint64_t A1 = 4;
-    const uint64_t A2 = 4;
 
-#ifdef __clang__
-    typedef simd_solving_policy<
-    D, A1, A2, array_function, uint64_t,
-    incremental_matrix_generation_policy<D, A1, A2>,
-    incremental_transposed_matrix_generation_policy<D, A1, A2>,
-    brute_force_evaluation_policy<D, A1>,
-    brute_force_evaluation_policy<D, A2>,
-    accumulating_result_handling_policy<D, A1, A2>> solver;
-#else
-    typedef simd_solving_policy<
-    D, A1, A2, array_function, uint64_t,
-    incremental_matrix_generation_policy<D, A1, A2>,
-    incremental_transposed_matrix_generation_policy<D, A1, A2>,
-    selective_evaluation_policy<D, A1>,
-    selective_transposed_evaluation_policy<D, A2>,
-    selective_accumulating_result_handling_policy<D, A1, A2>> solver;
-#endif
+    if (argc < 2) {
+        return 1;
+    }
 
-    array_function<D, A1, uint64_t> f1;
-    array_function<D, A2, uint64_t> f2;
+    std::stringstream argparse;
 
-    f1.storage.fill(-1);
-    f2.storage.fill(-1);
+    for (int i = 1; i < argc; ++i) {
+        argparse << argv[i] << " ";
+    }
 
-    std::cout << solver::commutes(f1, f2) << std::endl;
+    std::string s;
+    std::string infilenames[MAX_ARITY];
+
+    while (!argparse.eof()) {
+        argparse >> s;
+
+        if (argparse.bad() || argparse.eof()) {
+            break;
+        }
+
+        if (s == "-functions-1" || s == "-1") {
+            if (infilenames[0].empty()) {
+                argparse >> infilenames[0];
+            } else {
+                std::cerr << "Please specify only one function file per arity."
+                          << std::endl;
+                return 0;
+            }
+        } else if (s == "-functions-2" || s == "-2") {
+            if (infilenames[1].empty()) {
+                argparse >> infilenames[1];
+            } else {
+                std::cerr << "Please specify only one function file per arity."
+                          << std::endl;
+                return 0;
+            }
+        } else if (s == "-functions-3" || s == "-3") {
+            if (infilenames[2].empty()) {
+                argparse >> infilenames[2];
+            } else {
+                std::cerr << "Please specify only one function file per arity."
+                          << std::endl;
+                return 0;
+            }
+        } else if (s == "-functions-4" || s == "-4") {
+            if (infilenames[3].empty()) {
+                argparse >> infilenames[3];
+            } else {
+                std::cerr << "Please specify only one function file per arity."
+                          << std::endl;
+                return 0;
+            }
+        }
+    }
+
+    std::vector<array_function<D, 1, uint8_t>> v1;
+    std::vector<array_function<D, 2, uint8_t>> v2;
+    std::vector<array_function<D, 3, uint8_t>> v3;
+    std::vector<array_function<D, 4, uint8_t>> v4;
+
+    if (!infilenames[0].empty()) {
+        v1 = read_functions<4, 1>(infilenames[0]);
+    }
+
+    if (!infilenames[1].empty()) {
+        v2 = read_functions<4, 2>(infilenames[1]);
+    }
+
+    if (!infilenames[2].empty()) {
+        v3 = read_functions<4, 3>(infilenames[2]);
+    }
+
+    if (!infilenames[3].empty()) {
+        v4 = read_functions<4, 4>(infilenames[3]);
+    }
+
+    if (!infilenames[0].empty()) {
+        commutation_test(v1, v1);
+
+        if (!infilenames[1].empty()) {
+            commutation_test(v1, v2);
+        }
+
+        if (!infilenames[2].empty()) {
+            commutation_test(v1, v3);
+        }
+
+        if (!infilenames[3].empty()) {
+            commutation_test(v1, v4);
+        }
+    }
+
+    if (!infilenames[1].empty()) {
+        commutation_test(v2, v2);
+
+        if (!infilenames[2].empty()) {
+            commutation_test(v2, v3);
+        }
+
+        if (!infilenames[3].empty()) {
+            commutation_test(v2, v4);
+        }
+    }
+
+    if (!infilenames[2].empty()) {
+        commutation_test(v3, v3);
+
+        if (!infilenames[3].empty()) {
+            commutation_test(v3, v4);
+        }
+    }
+
+    if (!infilenames[3].empty()) {
+        commutation_test(v4, v4);
+    }
+
+    std::cout << matches.size() << std::endl;
+
+    for (auto& k : matches) {
+        std::cout << k.first;
+        std::cout << ":";
+
+        for (auto& c : k.second) {
+            std::cout << c << " ";
+        }
+
+        std::cout << std::endl;
+    }
+
     return 0;
 }

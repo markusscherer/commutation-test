@@ -12,7 +12,6 @@
 #include "tmmintrin.h"
 
 #include "array_function.hpp"
-#include "simd_tools.hpp"
 
 #include "policies/blowup_matrix_generation_policy.hpp"
 #include "policies/incremental_matrix_generation_policy.hpp"

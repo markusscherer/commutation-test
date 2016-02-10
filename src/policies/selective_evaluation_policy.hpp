@@ -45,13 +45,16 @@ template <uint64_t P, uint64_t V> struct mustcalc_transposed {
     }
 };
 
-template <uint64_t D, uint64_t A> struct selective_evaluation_policy {};
+template <uint64_t D, uint64_t A, class ElementType>
+struct selective_evaluation_policy {};
 
-template <> struct selective_evaluation_policy<4, 4> {
+template <class ElementType>
+struct selective_evaluation_policy<4, 4, ElementType> {
     typedef simd_evaluation_constants<4, 4> constants;
     typedef simd_evaluation_registers<4, 4> registers;
 
-    inline static void init_registers(registers& r, array_function<4, 4> f) {
+    inline static void init_registers(registers& r,
+                                      array_function<4, 4, ElementType> f) {
         array_to_si128(f.storage, r.f0, r.f1, r.f2, r.f3);
     }
 
@@ -147,14 +150,16 @@ template <> struct selective_evaluation_policy<4, 4> {
     }
 };
 
-template <uint64_t D, uint64_t A>
+template <uint64_t D, uint64_t A, class ElementType>
 struct selective_transposed_evaluation_policy {};
 
-template <> struct selective_transposed_evaluation_policy<4, 4> {
+template <class ElementType>
+struct selective_transposed_evaluation_policy<4, 4, ElementType> {
     typedef simd_evaluation_constants<4, 4> constants;
     typedef simd_evaluation_registers<4, 4> registers;
 
-    inline static void init_registers(registers& r, array_function<4, 4> f) {
+    inline static void init_registers(registers& r,
+                                      array_function<4, 4, ElementType> f) {
         array_to_si128(f.storage, r.f0, r.f1, r.f2, r.f3);
     }
 

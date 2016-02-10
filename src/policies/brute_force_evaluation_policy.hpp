@@ -14,14 +14,15 @@
 template <uint64_t D, uint64_t A, class ElementType>
 struct brute_force_evaluation_policy {};
 
-template <> struct brute_force_evaluation_policy<4, 1, uint32_t> {
+template <class ElementType>
+struct brute_force_evaluation_policy<4, 1, ElementType> {
     typedef simd_evaluation_constants<4, 4> constants;
     typedef simd_evaluation_registers<4, 1> registers;
 
     inline static void init_registers(registers& r,
-                                      array_function<4, 1, uint32_t> f,
+                                      array_function<4, 1, ElementType> f,
                                       const constants& c) {
-        __m128i partial_function = _mm_set1_epi32(f.storage[0]);
+        __m128i partial_function = _mm_set1_epi32(f.storage[0] & 0xFF);
 
         // "blow up" function from packed 2-bit integers to packed 8-bit integers
 
@@ -48,14 +49,26 @@ template <> struct brute_force_evaluation_policy<4, 1, uint32_t> {
     }
 };
 
-template <> struct brute_force_evaluation_policy<4, 2, uint32_t> {
+template <class ElementType>
+struct brute_force_evaluation_policy<4, 2, ElementType> {
     typedef simd_evaluation_constants<4, 4> constants;
     typedef simd_evaluation_registers<4, 2> registers;
 
     inline static void init_registers(registers& r,
-                                      array_function<4, 2, uint32_t> f,
+                                      array_function<4, 2, ElementType> f,
                                       const constants& c) {
-        __m128i partial_function = _mm_set1_epi32(f.storage[0]);
+        uint32_t tmp_function = 0;
+
+        for (int32_t i = std::max(4 / sizeof(ElementType), 1ul) - 1; i >= 0; --i) {
+            // hopefully this gets optimized away, only relevant of sizeof(T) == 2
+            for (uint32_t k = 0; k < sizeof(ElementType); ++k) {
+                tmp_function <<= 8;
+            }
+
+            tmp_function |= f.storage[i];
+        }
+
+        __m128i partial_function = _mm_set1_epi32(tmp_function);
 
         // "blow up" function from packed 2-bit integers to packed 8-bit integers
 
