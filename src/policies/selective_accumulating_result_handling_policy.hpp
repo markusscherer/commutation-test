@@ -14,6 +14,7 @@ template <uint64_t D, uint64_t A1, uint64_t A2>
 struct selective_accumulating_result_handling_policy {};
 
 template <> struct selective_accumulating_result_handling_policy<4, 4, 4> {
+    const static uint64_t matrices_per_step = 4;
     struct registers {
         __m128i accmatfh = _mm_setzero_si128();
         __m128i accmatfl = _mm_setzero_si128();

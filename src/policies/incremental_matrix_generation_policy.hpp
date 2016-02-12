@@ -11,6 +11,7 @@ template <uint64_t D, uint64_t A1, uint64_t A2>
 struct incremental_matrix_generation_policy {};
 
 template <> struct incremental_matrix_generation_policy<4, 1, 2> {
+    const static uint64_t matrices_per_step = 4;
     struct constants {
         const __m128i const0010;
 
@@ -36,6 +37,7 @@ template <> struct incremental_matrix_generation_policy<4, 1, 2> {
 };
 
 template <> struct incremental_matrix_generation_policy<4, 2, 2> {
+    const static uint64_t matrices_per_step = 4;
     struct constants {
         const __m128i const0004;
         const __m128i const0010;
@@ -66,6 +68,7 @@ template <> struct incremental_matrix_generation_policy<4, 2, 2> {
 };
 
 template <> struct incremental_matrix_generation_policy<4, 1, 3> {
+    const static uint64_t matrices_per_step = 4;
     struct constants {
         const __m128i const0010;
         const __m128i const01_40;
@@ -97,6 +100,7 @@ template <> struct incremental_matrix_generation_policy<4, 1, 3> {
 };
 
 template <> struct incremental_matrix_generation_policy<4, 2, 3> {
+    const static uint64_t matrices_per_step = 4;
     struct constants {
         const __m128i const0004;
         const __m128i const0010;
@@ -134,6 +138,7 @@ template <> struct incremental_matrix_generation_policy<4, 2, 3> {
 };
 
 template <> struct incremental_matrix_generation_policy<4, 3, 3> {
+    const static uint64_t matrices_per_step = 4;
     struct constants {
         const __m128i const0004;
         const __m128i const0001;
@@ -197,6 +202,7 @@ template <> struct incremental_matrix_generation_policy<4, 3, 3> {
 };
 
 template <> struct incremental_matrix_generation_policy<4, 1, 4> {
+    const static uint64_t matrices_per_step = 4;
     struct constants {
         const __m128i const0010;
         const __m128i const01_40;
@@ -235,6 +241,7 @@ template <> struct incremental_matrix_generation_policy<4, 1, 4> {
 };
 
 template <> struct incremental_matrix_generation_policy<4, 2, 4> {
+    const static uint64_t matrices_per_step = 4;
     struct constants {
         const __m128i const0004;
         const __m128i const0010;
@@ -279,6 +286,7 @@ template <> struct incremental_matrix_generation_policy<4, 2, 4> {
 };
 
 template <> struct incremental_matrix_generation_policy<4, 3, 4> {
+    const static uint64_t matrices_per_step = 4;
     struct constants {
         const __m128i const0004;
         const __m128i const0001;
@@ -356,6 +364,7 @@ template <> struct incremental_matrix_generation_policy<4, 3, 4> {
 };
 
 template <> struct incremental_matrix_generation_policy<4, 4, 4> {
+    const static uint64_t matrices_per_step = 4;
     struct constants {
         const __m128i const0004;
         const __m128i const0001;

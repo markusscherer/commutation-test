@@ -28,12 +28,14 @@ template <uint64_t D, uint64_t A1, uint64_t A2,
           template <uint64_t, uint64_t, typename> class FunctionType,
           class ElementType, class MatrixGenerationPolicy,
           class TransposedMatrixGenerationPolicy, class EvaluationPolicy1,
-          class EvaluationPolicy2, class ResultsHandlingPolicy>
+          class EvaluationPolicy2, class ResultsHandlingPolicy,
+          uint64_t MatricesPerStep>
 struct simd_solving_policy_two_low_matrices {
     typedef ElementType element_type;
     static const uint64_t domain_size = D;
     static const uint64_t cell_count = A1 * A2;
     static const uint64_t matrix_count = cpow(domain_size, cell_count);
+    static const uint64_t matrices_per_step = MatricesPerStep;
 
     inline static bool commutes(FunctionType<D, A1, ElementType> f,
                                 FunctionType<D, A2, ElementType> g) {
@@ -61,7 +63,7 @@ struct simd_solving_policy_two_low_matrices {
         MatrixGenerationPolicy::init_matrix(matl);
         TransposedMatrixGenerationPolicy::init_matrix(tmatl);
 
-        for (uint64_t i = 0; i < matrix_count; i += 4) {
+        for (uint64_t i = 0; i < matrix_count; i += matrices_per_step) {
             MatrixGenerationPolicy::next_matrix(i, matl, mgp_constants);
             TransposedMatrixGenerationPolicy::next_matrix(i, tmatl, tmgp_constants);
 
@@ -83,12 +85,14 @@ template <uint64_t D, uint64_t A1, uint64_t A2,
           template <uint64_t, uint64_t, typename> class FunctionType,
           class ElementType, class MatrixGenerationPolicy,
           class TransposedMatrixGenerationPolicy, class EvaluationPolicy1,
-          class EvaluationPolicy2, class ResultsHandlingPolicy>
+          class EvaluationPolicy2, class ResultsHandlingPolicy,
+          uint64_t MatricesPerStep>
 struct simd_solving_policy_mixed_matrices {
     typedef ElementType element_type;
     static const uint64_t domain_size = D;
     static const uint64_t cell_count = A1 * A2;
     static const uint64_t matrix_count = cpow(domain_size, cell_count);
+    static const uint64_t matrices_per_step = MatricesPerStep;
 
     inline static bool commutes(FunctionType<D, A1, ElementType> f,
                                 FunctionType<D, A2, ElementType> g) {
@@ -117,7 +121,7 @@ struct simd_solving_policy_mixed_matrices {
         MatrixGenerationPolicy::init_matrix(matl);
         TransposedMatrixGenerationPolicy::init_matrix(tmatl, tmath);
 
-        for (uint64_t i = 0; i < matrix_count; i += 4) {
+        for (uint64_t i = 0; i < matrix_count; i += matrices_per_step) {
             MatrixGenerationPolicy::next_matrix(i, matl, mgp_constants);
             TransposedMatrixGenerationPolicy::next_matrix(i, tmatl, tmath,
                                                           tmgp_constants);
@@ -140,12 +144,14 @@ template <uint64_t D, uint64_t A1, uint64_t A2,
           template <uint64_t, uint64_t, typename> class FunctionType,
           class ElementType, class MatrixGenerationPolicy,
           class TransposedMatrixGenerationPolicy, class EvaluationPolicy1,
-          class EvaluationPolicy2, class ResultsHandlingPolicy>
+          class EvaluationPolicy2, class ResultsHandlingPolicy,
+          uint64_t MatricesPerStep>
 struct simd_solving_policy_two_high_matrices {
     typedef ElementType element_type;
     static const uint64_t domain_size = D;
     static const uint64_t cell_count = A1 * A2;
     static const uint64_t matrix_count = cpow(domain_size, cell_count);
+    static const uint64_t matrices_per_step = MatricesPerStep;
 
     inline static bool commutes(FunctionType<D, A1, ElementType> f,
                                 FunctionType<D, A2, ElementType> g) {
@@ -175,7 +181,7 @@ struct simd_solving_policy_two_high_matrices {
         MatrixGenerationPolicy::init_matrix(matl, math);
         TransposedMatrixGenerationPolicy::init_matrix(tmatl, tmath);
 
-        for (uint64_t i = 0; i < matrix_count; i += 4) {
+        for (uint64_t i = 0; i < matrix_count; i += matrices_per_step) {
             MatrixGenerationPolicy::next_matrix(i, matl, math, mgp_constants);
             TransposedMatrixGenerationPolicy::next_matrix(i, tmatl, tmath,
                                                           tmgp_constants);
@@ -199,23 +205,35 @@ template <uint64_t D, uint64_t A1, uint64_t A2,
           template <uint64_t, uint64_t, typename> class FunctionType,
           class ElementType, class MatrixGenerationPolicy,
           class TransposedMatrixGenerationPolicy, class EvaluationPolicy1,
-          class EvaluationPolicy2, class ResultsHandlingPolicy>
+          class EvaluationPolicy2, class ResultsHandlingPolicy,
+          uint64_t MatricesPerStep>
 struct simd_solving_policy {
 private:
     typedef impl::simd_solving_policy_two_low_matrices<
     D, A1, A2, FunctionType, ElementType, MatrixGenerationPolicy,
     TransposedMatrixGenerationPolicy, EvaluationPolicy1, EvaluationPolicy2,
-    ResultsHandlingPolicy> TwoLowImplementation;
+    ResultsHandlingPolicy, MatricesPerStep> TwoLowImplementation;
 
     typedef impl::simd_solving_policy_mixed_matrices<
     D, A1, A2, FunctionType, ElementType, MatrixGenerationPolicy,
     TransposedMatrixGenerationPolicy, EvaluationPolicy1, EvaluationPolicy2,
-    ResultsHandlingPolicy> MixedImplementation;
+    ResultsHandlingPolicy, MatricesPerStep> MixedImplementation;
 
     typedef impl::simd_solving_policy_two_high_matrices<
     D, A1, A2, FunctionType, ElementType, MatrixGenerationPolicy,
     TransposedMatrixGenerationPolicy, EvaluationPolicy1, EvaluationPolicy2,
-    ResultsHandlingPolicy> TwoHighImplementation;
+    ResultsHandlingPolicy, MatricesPerStep> TwoHighImplementation;
+
+    static_assert(MatrixGenerationPolicy::matrices_per_step ==
+                  TransposedMatrixGenerationPolicy::matrices_per_step,
+                  "MatricesPerStep of matrix generation policies must match.");
+    static_assert(MatrixGenerationPolicy::matrices_per_step ==
+                  ResultsHandlingPolicy::matrices_per_step,
+                  "MatricesPerStep of matrix generation policies and result "
+                  "handling policy must match.");
+    static_assert(
+        MatricesPerStep == ResultsHandlingPolicy::matrices_per_step,
+        "MatricesPerStep of solver and result handling policy must match.");
 
 public:
     typedef ElementType element_type;
