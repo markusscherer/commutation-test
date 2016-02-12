@@ -12,16 +12,11 @@ struct incremental_transposed_matrix_generation_policy {};
 
 template <> struct incremental_transposed_matrix_generation_policy<4, 1, 2> {
     struct constants {
-        const __m128i const0001;
         const __m128i const0004;
-        const __m128i const000_16;
 
         constants()
-            : const0001(_mm_set_epi32(1, 1, 1, 1)),
-              const0004(
-                  _mm_set_epi8(0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4)),
-              const000_16(_mm_set_epi8(0, 0, 0, -16, 0, 0, 0, -16, 0, 0, 0, -16, 0,
-                                       0, 0, -16)) {
+            : const0004(
+                  _mm_set_epi8(0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4)) {
         }
     };
 

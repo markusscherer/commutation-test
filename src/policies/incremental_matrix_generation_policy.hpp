@@ -13,13 +13,10 @@ struct incremental_matrix_generation_policy {};
 template <> struct incremental_matrix_generation_policy<4, 1, 2> {
     struct constants {
         const __m128i const0010;
-        const __m128i const01_40;
 
         constants()
             : const0010(
-                  _mm_set_epi8(0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0)),
-              const01_40(_mm_set_epi8(0, 1, -4, 0, 0, 1, -4, 0, 0, 1, -4, 0, 0, 1,
-                                      -4, 0)) {
+                  _mm_set_epi8(0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0)) {
         }
     };
 
@@ -35,10 +32,6 @@ template <> struct incremental_matrix_generation_policy<4, 1, 2> {
                                    const constants& c) {
 
         matl = _mm_add_epi8(matl, c.const0010);
-
-        if (matcount % (1 << 4) == 0) {
-            matl = _mm_add_epi8(matl, c.const01_40);
-        }
     }
 };
 
