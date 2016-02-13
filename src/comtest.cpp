@@ -7,7 +7,8 @@
 #include <string>
 #include <string>
 #include <sstream>
-
+#include <limits>
+#include <algorithm>
 #include "array_function.hpp"
 #include "constants.hpp"
 #include "bitset_function.hpp"
@@ -55,6 +56,10 @@ read_functions(std::string filename) {
     return vec;
 }
 
+struct range {
+    uint64_t startA, endA, startB, endB;
+};
+
 template <uint64_t D, uint64_t A1, uint64_t A2>
 void commutation_test(std::vector<array_function<D, A1, uint8_t>>& vec1,
                       std::vector<array_function<D, A2, uint8_t>>& vec2) {
@@ -71,7 +76,152 @@ void commutation_test(std::vector<array_function<D, A1, uint8_t>>& vec1,
     }
 }
 
+template <uint64_t D, uint64_t A1, uint64_t A2>
+void commutation_test(std::vector<array_function<D, A1, uint8_t>>& vec1,
+                      std::vector<array_function<D, A2, uint8_t>>& vec2,
+                      const range& r) {
+    range ar;
+    ar.startA = std::min(r.startA, vec1.size());
+    ar.startB = std::min(r.startB, vec2.size());
+    ar.endA = std::min(r.endA, vec2.size());
+    ar.endB = std::min(r.endB, vec2.size());
+
+    for (uint64_t i = ar.startA; i < ar.endA; ++i) {
+        for (uint64_t j = A1 != A2 ? ar.startB : std::max(i, ar.startB);
+                j < ar.endB; ++j) {
+            std::string id1 = to_string(i) + "/" + to_string(A1);
+            std::string id2 = to_string(j) + "/" + to_string(A2);
+
+            if (solver<D, A1, A2>::commutes(vec1[i], vec2[j])) {
+                matches[id1].insert(id2);
+                matches[id2].insert(id1);
+            }
+        }
+    }
+}
+
 const uint64_t MAX_ARITY = 4;
+
+bool parse_range_component(uint64_t& val, uint64_t defaultval, std::string s) {
+    if (s.empty()) {
+        val = defaultval;
+    } else {
+        if (!try_read(val, s)) {
+            std::cerr << "Failed to range parse argument. Parameter ignored."
+                      << std::endl;
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool parse_range_component(uint64_t& arity, uint64_t& leftval,
+                           uint64_t& rightval, std::string s) {
+    size_t slash = s.find("/");
+
+    if (slash == std::string::npos) {
+        std::cerr << "Both sides have to contain '/'. Parameter ignored."
+                  << std::endl;
+        return false;
+    }
+
+    if (!try_read(arity, s.substr(slash + 1))) {
+        std::cerr << "Failed to parse arities. Parameter ignored." << std::endl;
+        return false;
+    }
+
+    std::string range = s.substr(0, slash);
+    size_t dash = range.find("-");
+
+    std::string left = range.substr(0, dash);
+    std::string right = range.substr(dash + 1);
+
+    bool ret = parse_range_component(leftval, 0, left) &&
+               parse_range_component(rightval,
+                                     std::numeric_limits<uint64_t>::max(), right);
+    return ret;
+}
+
+void parse_range(std::map<std::pair<uint64_t, uint64_t>, range>& ranges,
+                 std::string s) {
+    size_t middle = s.find("#");
+
+    if (middle == std::string::npos) {
+        std::cerr << "Range has to contain '#'. Parameter ignored." << std::endl;
+        return;
+    }
+
+    std::string left = s.substr(0, middle);
+    std::string right = s.substr(middle + 1);
+
+    uint64_t leftarity;
+    uint64_t rightarity;
+    range r;
+
+    bool ret = parse_range_component(leftarity, r.startA, r.endA, left) &&
+               parse_range_component(rightarity, r.startB, r.endB, right);
+
+    if (!ret) {
+        return;
+    }
+
+    std::pair<uint64_t, uint64_t> key;
+    key.first = std::min(leftarity, rightarity);
+    key.second = std::min(leftarity, rightarity);
+
+    if (key.first == leftarity) {
+        ranges[key] = r;
+    } else {
+        std::swap(r.startA, r.startB);
+        std::swap(r.endA, r.endB);
+        ranges[key] = r;
+    }
+}
+
+template <class A, class B, class C, class D>
+void test_all(A v1, B v2, C v3, D v4) {
+
+    if (!v1.empty()) {
+        commutation_test(v1, v1);
+
+        if (!v2.empty()) {
+            commutation_test(v1, v2);
+        }
+
+        if (!v3.empty()) {
+            commutation_test(v1, v3);
+        }
+
+        if (!v4.empty()) {
+            commutation_test(v1, v4);
+        }
+    }
+
+    if (!v2.empty()) {
+        commutation_test(v2, v2);
+
+        if (!v3.empty()) {
+            commutation_test(v2, v3);
+        }
+
+        if (!v4.empty()) {
+            commutation_test(v2, v4);
+        }
+    }
+
+    if (!v3.empty()) {
+        commutation_test(v3, v3);
+
+        if (!v4.empty()) {
+            commutation_test(v3, v4);
+        }
+    }
+
+    if (!v4.empty()) {
+        commutation_test(v4, v4);
+    }
+}
 
 int main(int argc, char **argv) {
     const uint64_t D = 4;
@@ -88,6 +238,7 @@ int main(int argc, char **argv) {
 
     std::string s;
     std::string infilenames[MAX_ARITY];
+    std::map<std::pair<uint64_t, uint64_t>, range> ranges;
 
     while (!argparse.eof()) {
         argparse >> s;
@@ -96,7 +247,7 @@ int main(int argc, char **argv) {
             break;
         }
 
-        if (s == "-functions-1" || s == "-1") {
+        if (s == "--functions-1" || s == "-1") {
             if (infilenames[0].empty()) {
                 argparse >> infilenames[0];
             } else {
@@ -104,7 +255,7 @@ int main(int argc, char **argv) {
                           << std::endl;
                 return 0;
             }
-        } else if (s == "-functions-2" || s == "-2") {
+        } else if (s == "--functions-2" || s == "-2") {
             if (infilenames[1].empty()) {
                 argparse >> infilenames[1];
             } else {
@@ -112,7 +263,7 @@ int main(int argc, char **argv) {
                           << std::endl;
                 return 0;
             }
-        } else if (s == "-functions-3" || s == "-3") {
+        } else if (s == "--functions-3" || s == "-3") {
             if (infilenames[2].empty()) {
                 argparse >> infilenames[2];
             } else {
@@ -120,7 +271,7 @@ int main(int argc, char **argv) {
                           << std::endl;
                 return 0;
             }
-        } else if (s == "-functions-4" || s == "-4") {
+        } else if (s == "--functions-4" || s == "-4") {
             if (infilenames[3].empty()) {
                 argparse >> infilenames[3];
             } else {
@@ -128,6 +279,9 @@ int main(int argc, char **argv) {
                           << std::endl;
                 return 0;
             }
+        } else if (s == "--range" || s == "-r") {
+            argparse >> s;
+            parse_range(ranges, s);
         }
     }
 
@@ -152,44 +306,41 @@ int main(int argc, char **argv) {
         v4 = read_functions<4, 4>(infilenames[3]);
     }
 
-    if (!infilenames[0].empty()) {
-        commutation_test(v1, v1);
+    if (ranges.empty()) {
+        test_all(v1, v2, v3, v4);
+    } else {
+        for (const auto& r : ranges) {
+            const uint64_t a1 = r.first.first;
+            const uint64_t a2 = r.first.second;
 
-        if (!infilenames[1].empty()) {
-            commutation_test(v1, v2);
+            if (a1 == 1) {
+                if (a2 == 1) {
+                    commutation_test(v1, v1, r.second);
+                } else if (a2 == 2) {
+                    commutation_test(v1, v2, r.second);
+                } else if (a2 == 3) {
+                    commutation_test(v1, v3, r.second);
+                } else if (a2 == 4) {
+                    commutation_test(v1, v4, r.second);
+                }
+            } else if (a1 == 2) {
+                if (a2 == 2) {
+                    commutation_test(v2, v2, r.second);
+                } else if (a2 == 3) {
+                    commutation_test(v2, v3, r.second);
+                } else if (a2 == 4) {
+                    commutation_test(v2, v4, r.second);
+                }
+            } else if (a1 == 3) {
+                if (a2 == 3) {
+                    commutation_test(v3, v3, r.second);
+                } else if (a2 == 4) {
+                    commutation_test(v3, v4, r.second);
+                }
+            } else if (a1 == 4 && a2 == 4) {
+                commutation_test(v4, v4, r.second);
+            }
         }
-
-        if (!infilenames[2].empty()) {
-            commutation_test(v1, v3);
-        }
-
-        if (!infilenames[3].empty()) {
-            commutation_test(v1, v4);
-        }
-    }
-
-    if (!infilenames[1].empty()) {
-        commutation_test(v2, v2);
-
-        if (!infilenames[2].empty()) {
-            commutation_test(v2, v3);
-        }
-
-        if (!infilenames[3].empty()) {
-            commutation_test(v2, v4);
-        }
-    }
-
-    if (!infilenames[2].empty()) {
-        commutation_test(v3, v3);
-
-        if (!infilenames[3].empty()) {
-            commutation_test(v3, v4);
-        }
-    }
-
-    if (!infilenames[3].empty()) {
-        commutation_test(v4, v4);
     }
 
     std::cout << matches.size() << std::endl;

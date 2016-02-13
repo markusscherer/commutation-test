@@ -42,6 +42,18 @@ template <typename T> bool try_read(T& x) {
     return true;
 }
 
+template <typename T> bool try_read(T& x, std::string s) {
+    std::stringstream ss;
+    ss << s;
+    ss >> x;
+
+    if (ss.fail()) {
+        return false;
+    }
+
+    return true;
+}
+
 template <typename T, typename C = uint64_t>
 void print_iterable(T x, std::ostream& out = std::cout, bool bl = true,
                     std::string sep = " ") {
