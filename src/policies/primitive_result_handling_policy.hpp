@@ -109,9 +109,9 @@ struct primitive_result_handling_policy_mixed_matrices {
                          A1 == 1 ? c.const3333 : c.constFFFF);
 
         brute_force_evaluation_policy<D, A1, ElementType>::eval(
-            resf, matcount, r.accmatgl, ep1_reg, ep1_constants);
+            resf, matcount, matgl, ep1_reg, ep1_constants);
         brute_force_evaluation_policy<D, A2, ElementType>::eval(
-            resg, matcount, r.accmatfl, r.accmatfh, ep2_reg, ep2_constants);
+            resg, matcount, matfl, matfh, ep2_reg, ep2_constants);
 
         int funceq = _mm_movemask_epi8(_mm_cmpeq_epi8(resg, resf));
 
@@ -160,9 +160,9 @@ struct primitive_result_handling_policy_two_high_matrices {
         result_to_matrix(resg, matgl, matgh, c.shuf128, c.const2020, c.constFFFF,
                          A1 == 3 ? c.const3333 : c.constFFFF);
         brute_force_evaluation_policy<D, A1, ElementType>::eval(
-            resf, matcount, r.accmatgl, r.accmatgh, ep1_reg, ep1_constants);
+            resf, matcount, matgl, matgh, ep1_reg, ep1_constants);
         brute_force_evaluation_policy<D, A2, ElementType>::eval(
-            resg, matcount, r.accmatfl, r.accmatfh, ep2_reg, ep2_constants);
+            resg, matcount, matfl, matfh, ep2_reg, ep2_constants);
 
         int funceq = _mm_movemask_epi8(_mm_cmpeq_epi8(resg, resf));
 

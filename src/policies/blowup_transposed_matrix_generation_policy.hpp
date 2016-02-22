@@ -11,6 +11,7 @@ template <uint64_t D, uint64_t A1, uint64_t A2>
 struct blowup_transposed_matrix_generation_policy {};
 
 template <> struct blowup_transposed_matrix_generation_policy<4, 4, 4> {
+    static const uint64_t matrices_per_step = 4;
     struct constants {
         const __m128i shuf128;
         const __m128i shift128;
