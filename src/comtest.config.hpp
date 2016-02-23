@@ -7,14 +7,14 @@
 #include "simd_solving_policy.hpp"
 #include "simple_unary_solving_policy.hpp"
 #include "policies/incremental_matrix_generation_policy.hpp"
-#include "policies/blowup_matrix_generation_policy.hpp"
+//#include "policies/blowup_matrix_generation_policy.hpp"
 #include "policies/selective_accumulating_result_handling_policy.hpp"
 #include "policies/selective_evaluation_policy.hpp"
 #include "policies/brute_force_evaluation_policy.hpp"
 #include "policies/incremental_transposed_matrix_generation_policy.hpp"
 #include "policies/accumulating_result_handling_policy.hpp"
 #include "policies/primitive_result_handling_policy.hpp"
-#include "policies/blowup_transposed_matrix_generation_policy.hpp"
+//#include "policies/blowup_transposed_matrix_generation_policy.hpp"
 #include "policies/dense_incremental_transposed_matrix_generation_policy.hpp"
 #include "policies/dense_incremental_matrix_generation_policy.hpp"
 
@@ -68,8 +68,8 @@ template <uint64_t D, uint64_t A1, uint64_t A2> struct solver {
              vc_tuple<D == 4 && A2 == 2, DenseImplementation>,
              vc_tuple<D == 4, DefaultImplementation>>::type Implementation;
 
-    static inline bool commutes(array_function<D, A1, ElementType>& f1,
-                                array_function<D, A2, ElementType>& f2) {
+    static inline bool commutes(const array_function<D, A1, ElementType>& f1,
+                                const array_function<D, A2, ElementType>& f2) {
         return Implementation::commutes(f1, f2);
     }
 };

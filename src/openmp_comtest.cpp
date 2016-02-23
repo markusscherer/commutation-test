@@ -9,6 +9,7 @@
 #include <sstream>
 #include <limits>
 #include <algorithm>
+#include <omp.h>
 #include "array_function.hpp"
 #include "constants.hpp"
 #include "bitset_function.hpp"
@@ -63,14 +64,30 @@ struct range {
 template <uint64_t D, uint64_t A1, uint64_t A2>
 void commutation_test(std::vector<array_function<D, A1, uint8_t>>& vec1,
                       std::vector<array_function<D, A2, uint8_t>>& vec2) {
+    std::vector<std::map<std::string, std::set<std::string>>> thread_matches;
+    thread_matches.resize(omp_get_max_threads());
+
+    #pragma omp parallel for
+
     for (uint64_t i = 0; i < vec1.size(); ++i) {
-        for (uint64_t j = A1 != A2 ? 0 : i; j < vec2.size(); ++j) {
+        for (uint64_t j = 0; j < vec2.size(); ++j) {
+            //          if(A1 != A2 && j < i) {
+            //            break;
+            //          }
             if (solver<D, A1, A2>::commutes(vec1[i], vec2[j])) {
                 std::string id1 = to_string(i) + "/" + to_string(A1);
                 std::string id2 = to_string(j) + "/" + to_string(A2);
 
-                matches[id1].insert(id2);
-                matches[id2].insert(id1);
+                thread_matches[omp_get_thread_num()][id1].insert(id2);
+                thread_matches[omp_get_thread_num()][id2].insert(id1);
+            }
+        }
+    }
+
+    for (const auto& m : thread_matches) {
+        for (const auto& mm : m) {
+            for (const auto& mmm : mm.second) {
+                matches[mm.first].insert(mmm);
             }
         }
     }
@@ -89,10 +106,10 @@ void commutation_test(std::vector<array_function<D, A1, uint8_t>>& vec1,
     for (uint64_t i = ar.startA; i < ar.endA; ++i) {
         for (uint64_t j = A1 != A2 ? ar.startB : std::max(i, ar.startB);
                 j < ar.endB; ++j) {
-            std::string id1 = to_string(i) + "/" + to_string(A1);
-            std::string id2 = to_string(j) + "/" + to_string(A2);
-
             if (solver<D, A1, A2>::commutes(vec1[i], vec2[j])) {
+                std::string id1 = to_string(i) + "/" + to_string(A1);
+                std::string id2 = to_string(j) + "/" + to_string(A2);
+
                 matches[id1].insert(id2);
                 matches[id2].insert(id1);
             }

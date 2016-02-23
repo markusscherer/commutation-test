@@ -13,14 +13,14 @@
 
 #include "array_function.hpp"
 
-#include "policies/blowup_matrix_generation_policy.hpp"
-#include "policies/incremental_matrix_generation_policy.hpp"
-#include "policies/blowup_transposed_matrix_generation_policy.hpp"
-#include "policies/incremental_transposed_matrix_generation_policy.hpp"
-#include "policies/brute_force_evaluation_policy.hpp"
-#include "policies/selective_evaluation_policy.hpp"
-#include "policies/accumulating_result_handling_policy.hpp"
-#include "policies/selective_accumulating_result_handling_policy.hpp"
+//#include "policies/blowup_matrix_generation_policy.hpp"
+//#include "policies/incremental_matrix_generation_policy.hpp"
+//#include "policies/blowup_transposed_matrix_generation_policy.hpp"
+//#include "policies/incremental_transposed_matrix_generation_policy.hpp"
+//#include "policies/brute_force_evaluation_policy.hpp"
+//#include "policies/selective_evaluation_policy.hpp"
+//#include "policies/accumulating_result_handling_policy.hpp"
+//#include "policies/selective_accumulating_result_handling_policy.hpp"
 
 namespace impl {
 
@@ -37,8 +37,8 @@ struct simd_solving_policy_two_low_matrices {
     static const uint64_t matrix_count = cpow(domain_size, cell_count);
     static const uint64_t matrices_per_step = MatricesPerStep;
 
-    inline static bool commutes(FunctionType<D, A1, ElementType> f,
-                                FunctionType<D, A2, ElementType> g) {
+    inline static bool commutes(const FunctionType<D, A1, ElementType>& f,
+                                const FunctionType<D, A2, ElementType>& g) {
 
         const typename MatrixGenerationPolicy::constants mgp_constants;
         const typename TransposedMatrixGenerationPolicy::constants tmgp_constants;
@@ -94,8 +94,8 @@ struct simd_solving_policy_mixed_matrices {
     static const uint64_t matrix_count = cpow(domain_size, cell_count);
     static const uint64_t matrices_per_step = MatricesPerStep;
 
-    inline static bool commutes(FunctionType<D, A1, ElementType> f,
-                                FunctionType<D, A2, ElementType> g) {
+    inline static bool commutes(const FunctionType<D, A1, ElementType>& f,
+                                const FunctionType<D, A2, ElementType>& g) {
 
         const typename MatrixGenerationPolicy::constants mgp_constants;
         const typename TransposedMatrixGenerationPolicy::constants tmgp_constants;
@@ -153,8 +153,8 @@ struct simd_solving_policy_two_high_matrices {
     static const uint64_t matrix_count = cpow(domain_size, cell_count);
     static const uint64_t matrices_per_step = MatricesPerStep;
 
-    inline static bool commutes(FunctionType<D, A1, ElementType> f,
-                                FunctionType<D, A2, ElementType> g) {
+    inline static bool commutes(const FunctionType<D, A1, ElementType>& f,
+                                const FunctionType<D, A2, ElementType>& g) {
 
         const typename MatrixGenerationPolicy::constants mgp_constants;
         const typename TransposedMatrixGenerationPolicy::constants tmgp_constants;
@@ -246,8 +246,8 @@ public:
              vc_tuple<D == 4 && A1 <= 2 && A2 <= 2, TwoLowImplementation>,
              vc_tuple<D == 4, MixedImplementation>>::type Implementation;
 
-    static bool commutes(FunctionType<D, A1, ElementType> f1,
-                         FunctionType<D, A2, ElementType> f2) {
+    static bool commutes(const FunctionType<D, A1, ElementType>& f1,
+                         const FunctionType<D, A2, ElementType>& f2) {
         return Implementation::commutes(f1, f2);
     };
 };

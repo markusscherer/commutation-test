@@ -63,14 +63,22 @@ struct range {
 template <uint64_t D, uint64_t A1, uint64_t A2>
 void commutation_test(std::vector<array_function<D, A1, uint8_t>>& vec1,
                       std::vector<array_function<D, A2, uint8_t>>& vec2) {
-    for (uint64_t i = 0; i < vec1.size(); ++i) {
-        for (uint64_t j = A1 != A2 ? 0 : i; j < vec2.size(); ++j) {
-            if (solver<D, A1, A2>::commutes(vec1[i], vec2[j])) {
-                std::string id1 = to_string(i) + "/" + to_string(A1);
-                std::string id2 = to_string(j) + "/" + to_string(A2);
+    #pragma omp parallel for
 
-                matches[id1].insert(id2);
-                matches[id2].insert(id1);
+    for (uint64_t i = 0; i < vec1.size(); ++i) {
+        for (uint64_t j = 0; j < vec2.size(); ++j) {
+            /* if(A1 != A2 && j < i) { */
+            /*   break; */
+            /* } */
+            if (solver<D, A1, A2>::commutes(vec1[i], vec2[j])) {
+                #pragma omp critical
+                {
+                    std::string id1 = to_string(i) + "/" + to_string(A1);
+                    std::string id2 = to_string(j) + "/" + to_string(A2);
+
+                    matches[id1].insert(id2);
+                    matches[id2].insert(id1);
+                }
             }
         }
     }
