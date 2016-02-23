@@ -47,7 +47,7 @@ template <uint64_t D, uint64_t A1, uint64_t A2, class ElementType>
 struct dimacs_output_sat_policy {
     typedef std::nullptr_t state;
 
-    static void setup(state) {
+    static void setup(state&) {
         const uint64_t cell_count = A1 * A2;
         const uint64_t matrix_count = cpow(D, cell_count);
 
