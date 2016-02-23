@@ -50,15 +50,29 @@ private:
                                                    const __m128i& shuf128,
                                                    const __m128i& shift128) {
         mat = _mm_set1_epi16(matcount);
+#ifdef __AVX2__
         __m128i tmp = _mm_setzero_si128();
         tmp = _mm_insert_epi64(tmp, 0x0000000400000004, 1);
         mat = _mm_srlv_epi32(mat, _mm_add_epi32(shift128, tmp));
-        tmp = _mm_srlv_epi32(mat, _mm_set1_epi32(2));
+#else
+        __m128i tmp = _mm_srli_epi32(mat, 2);
+        mat = _mm_blend_epi16(mat, tmp, 0xFC);
+        tmp = _mm_srli_epi32(tmp, 6);
+        mat = _mm_blend_epi16(mat, tmp, 0xF0);
+        tmp = _mm_srli_epi32(tmp, 2);
+        mat = _mm_blend_epi16(mat, tmp, 0xC0);
+#endif
+        tmp = _mm_srli_epi32(mat, 2);
         mat = _mm_and_si128(mat, _mm_set1_epi32(0x00000003));
         tmp = _mm_and_si128(tmp, _mm_set1_epi32(0x0000000C));
         mat = _mm_or_si128(mat, tmp);
         mat = _mm_shuffle_epi8(mat, shuf128);
+
+#ifdef __AVX2__
         mat = _mm_broadcastd_epi32(mat);
+#else
+        mat = _mm_shuffle_epi32(mat, 0);
+#endif
     }
 };
 
