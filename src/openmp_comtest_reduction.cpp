@@ -17,6 +17,7 @@
 
 #include "comtest.config.hpp"
 
+typedef std::map<std::string, std::set<std::string>> match_map;
 std::map<std::string, std::set<std::string>> matches;
 
 template <uint64_t D, uint64_t A>
@@ -61,13 +62,22 @@ struct range {
     uint64_t startA, endA, startB, endB;
 };
 
+void join_matches(match_map& a, match_map& b) {
+    for (const auto& mm : b) {
+        for (const auto& mmm : mm.second) {
+            a[mm.first].insert(mmm);
+        }
+    }
+}
+
+#pragma omp declare reduction(match_join : match_map : join_matches(omp_out,   \
+omp_in))
+
 template <uint64_t D, uint64_t A1, uint64_t A2>
 void commutation_test(std::vector<array_function<D, A1, uint8_t>>& vec1,
                       std::vector<array_function<D, A2, uint8_t>>& vec2) {
-    std::vector<std::map<std::string, std::set<std::string>>> thread_matches;
-    thread_matches.resize(omp_get_max_threads());
-
-    #pragma omp parallel for collapse(2)
+    std::map<std::string, std::set<std::string>> thread_matches;
+    #pragma omp parallel for reduction(match_join : thread_matches)
 
     for (uint64_t i = 0; i < vec1.size(); ++i) {
         for (uint64_t j = 0; j < vec2.size(); ++j) {
@@ -79,19 +89,13 @@ void commutation_test(std::vector<array_function<D, A1, uint8_t>>& vec1,
                 std::string id1 = to_string(i) + "/" + to_string(A1);
                 std::string id2 = to_string(j) + "/" + to_string(A2);
 
-                thread_matches[omp_get_thread_num()][id1].insert(id2);
-                thread_matches[omp_get_thread_num()][id2].insert(id1);
+                thread_matches[id1].insert(id2);
+                thread_matches[id2].insert(id1);
             }
         }
     }
 
-    for (const auto& m : thread_matches) {
-        for (const auto& mm : m) {
-            for (const auto& mmm : mm.second) {
-                matches[mm.first].insert(mmm);
-            }
-        }
-    }
+    matches.swap(thread_matches);
 }
 
 template <uint64_t D, uint64_t A1, uint64_t A2>

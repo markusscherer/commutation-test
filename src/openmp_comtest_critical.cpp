@@ -67,9 +67,10 @@ void commutation_test(std::vector<array_function<D, A1, uint8_t>>& vec1,
 
     for (uint64_t i = 0; i < vec1.size(); ++i) {
         for (uint64_t j = 0; j < vec2.size(); ++j) {
-            /* if(A1 != A2 && j < i) { */
-            /*   break; */
-            /* } */
+            if (A1 == A2 && j > i) {
+                break;
+            }
+
             if (solver<D, A1, A2>::commutes(vec1[i], vec2[j])) {
                 #pragma omp critical
                 {
