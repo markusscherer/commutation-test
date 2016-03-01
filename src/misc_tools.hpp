@@ -54,6 +54,11 @@ template <typename T> bool try_read(T& x, std::string s) {
     return true;
 }
 
+template <typename T1, typename T2> bool contains(const T1& con, const T2& v) {
+    auto tmp = std::find(con.begin(), con.end(), v);
+    return tmp != con.end();
+}
+
 template <typename T, typename C = uint64_t>
 void print_iterable(T x, std::ostream& out = std::cout, bool bl = true,
                     std::string sep = " ") {

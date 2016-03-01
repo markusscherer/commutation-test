@@ -50,6 +50,46 @@ template <uint64_t D, uint64_t A> struct parse_and_write {
     }
 };
 
+template <uint64_t D, uint64_t A> struct parse_and_write_compact {
+    static void run(uint64_t count) {
+        typedef typename bitset_function<D, A>::element_type element_type;
+        std::array<char, D> valid_values;
+
+        for (uint64_t i = 0; i < D; ++i) {
+            valid_values[i] = '0' + i;
+        }
+
+        for (uint64_t c = 0; c < count; ++c) {
+            bitset_function<D, A> f;
+            f.storage.set();
+            std::array<element_type, A> args;
+            args.fill(0);
+
+            std::string line;
+            std::cin >> line;
+
+            if (line.length() == 0) {
+                continue;
+            }
+
+            check(line.length() == cpow(D, A),
+                  "Line length should be " + to_string(cpow(D, A)) + " but is " +
+                  to_string(line.length()) + ".");
+
+            for (uint64_t i = 0; i < pow(D, A); ++i) {
+                check(contains(valid_values, line[i]),
+                      "Result value " + std::string(1, line[i]) +
+                      " lies outside of domain " + to_string(D) + ".");
+                f.set(args, line[i] - '0');
+                increment_array<D, A, element_type>(args);
+            }
+
+            auto arr = bitset_function_to_array<D, A, uint8_t>(f);
+            std::cout.write(reinterpret_cast<const char *>(arr.data()), arr.size());
+        }
+    }
+};
+
 template <uint64_t D, uint64_t A> struct read_and_print {
     static void run(uint64_t) {
         const uint64_t array_size = space_per_function<D, A, uint8_t>::of_type;
@@ -87,6 +127,47 @@ template <uint64_t D, uint64_t A> struct read_and_print {
                 }
 
                 std::cout << f->eval(args) << std::endl;
+                increment_array<D, A, element_type>(args);
+            }
+
+            std::cout << std::endl;
+        }
+    }
+};
+
+template <uint64_t D, uint64_t A> struct read_and_print_compact {
+    static void run(uint64_t) {
+        const uint64_t array_size = space_per_function<D, A, uint8_t>::of_type;
+        std::vector<bitset_function<D, A>> vec;
+        typedef typename bitset_function<D, A>::element_type element_type;
+        std::array<uint8_t, array_size> arr;
+
+        while (!std::cin.eof()) {
+            std::cin.read(reinterpret_cast<char *>(arr.data()), array_size);
+
+            if (std::cin.gcount() == 0) {
+                break;
+            }
+
+            if (std::cin.fail()) {
+                std::cerr << "Failed to extract function number " << vec.size() << "."
+                          << std::endl;
+                exit(1);
+            }
+
+            vec.push_back(array_to_bitset_function<D, A, uint8_t>(arr));
+        }
+
+        std::cout << "count " << vec.size() << std::endl;
+        std::cout << "domain_size " << D << std::endl;
+        std::cout << "arity " << A << std::endl;
+
+        std::array<element_type, A> args;
+        args.fill(0);
+
+        for (auto f = vec.begin(); f != vec.end(); ++f) {
+            for (uint64_t l = 0; l < pow(D, A); ++l) {
+                std::cout << f->eval(args);
                 increment_array<D, A, element_type>(args);
             }
 
@@ -139,6 +220,7 @@ int main(int argc, char **argv) {
     std::ifstream in;
     std::streambuf *cinbuf = std::cin.rdbuf();
     std::streambuf *coutbuf = std::cout.rdbuf();
+    bool compact = false;
 
     while (!argparse.eof()) {
         argparse >> s;
@@ -174,6 +256,8 @@ int main(int argc, char **argv) {
             argparse >> infilename;
         } else if (s == "--out-file" || s == "-o") {
             argparse >> outfilename;
+        } else if (s == "-c" || s == "--compact") {
+            compact = true;
         }
     }
 
@@ -216,13 +300,27 @@ int main(int argc, char **argv) {
             expect_string("arity");
             safe_read(arity);
 
-            domain_size_select<MAX_DOMAIN_SIZE, MAX_ARITY, parse_and_write>::select(
-                domain_size, arity, count);
+            if (compact) {
+                domain_size_select<MAX_DOMAIN_SIZE, MAX_ARITY,
+                                   parse_and_write_compact>::select(domain_size, arity,
+                                                                    count);
+            } else {
+                domain_size_select<MAX_DOMAIN_SIZE, MAX_ARITY, parse_and_write>::select(
+                    domain_size, arity, count);
+            }
+
             break;
 
         case PRINT:
-            domain_size_select<MAX_DOMAIN_SIZE, MAX_ARITY, read_and_print>::select(
-                domain_size, arity, count);
+            if (compact) {
+                domain_size_select<MAX_DOMAIN_SIZE, MAX_ARITY,
+                                   read_and_print_compact>::select(domain_size, arity,
+                                                                   count);
+            } else {
+                domain_size_select<MAX_DOMAIN_SIZE, MAX_ARITY, read_and_print>::select(
+                    domain_size, arity, count);
+            }
+
             break;
 
         default:
