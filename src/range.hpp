@@ -81,7 +81,7 @@ void parse_range(std::map<std::pair<uint64_t, uint64_t>, range>& ranges,
 
     std::pair<uint64_t, uint64_t> key;
     key.first = std::min(leftarity, rightarity);
-    key.second = std::min(leftarity, rightarity);
+    key.second = std::max(leftarity, rightarity);
 
     if (key.first == leftarity) {
         ranges[key] = r;
