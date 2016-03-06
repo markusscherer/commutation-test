@@ -12,12 +12,9 @@
 #include "../array_function.hpp"
 
 template <uint64_t P, uint64_t V> struct mustcalc {
-    static const uint32_t selmask = (0x03 << P * 2) | ((0x03 << P * 2) << 8) |
-                                    ((0x03 << P * 2) << 16) |
-                                    ((0x03 << P * 2) << 24);
-
-    static const uint32_t eqmask = (V << P * 2) | ((V << P * 2) << 8) |
-                                   ((V << P * 2) << 16) | ((V << P * 2) << 24);
+    static const uint32_t selmask = 0x03030303 << ((P - 2) * 2);
+    static const uint32_t eqmask = (V | (V << 8) | (V << 16) | (V << 24))
+                                   << ((P - 2) * 2);
 
     static inline bool calc(uint32_t matcount) {
         __m64 a = _mm_cvtsi32_si64(matcount);
@@ -30,14 +27,15 @@ template <uint64_t P, uint64_t V> struct mustcalc {
 };
 
 template <uint64_t P, uint64_t V> struct mustcalc_transposed {
-    static const uint32_t selmask = 0xC0300C03;
+    static const uint32_t selmask = 0x0C0C0303 << ((P - 2) * 4);
 
     static const uint32_t eqmask =
-        V | ((V << 2) << 8) | ((V << 4) << 16) | ((V << 6) << 24);
+        (V | (V << 8) | ((V << 2) << 16) | ((V << 2) << 24)) << ((P - 2) * 4);
 
     static inline bool calc(uint32_t matcount) {
-        __m64 a = _mm_set1_pi8((matcount >> (P * 8)) & 0xFF);
+        __m64 a = _mm_set1_pi16(matcount);
         __m64 b = _mm_cvtsi32_si64(selmask);
+
         a = _mm_and_si64(a, b);
         b = _mm_cvtsi32_si64(eqmask);
         b = _mm_cmpeq_pi8(a, b);
@@ -60,6 +58,8 @@ struct selective_evaluation_policy<4, 4, ElementType> {
 
     inline static void eval(__m128i& res, uint64_t matcount, __m128i& matl,
                             __m128i& math, registers& r, const constants& c) {
+        matcount = (matcount & 0xFFFF0000) | (matcount >> 20);
+
         if (mustcalc<3, 0>::calc(matcount)) {
             if (mustcalc<2, 0>::calc(matcount)) {
                 partial_eval<0>(r.f0, res, c.epi8_2lsb_mask_128, c.shuf128, c.shift128,
@@ -165,6 +165,8 @@ struct selective_transposed_evaluation_policy<4, 4, ElementType> {
 
     inline static void eval(__m128i& res, uint64_t matcount, __m128i& matl,
                             __m128i& math, registers& r, const constants& c) {
+        matcount = ((matcount >> 8) & 0x00FF) | ((matcount >> 16) & 0xFF00);
+
         if (mustcalc_transposed<3, 0>::calc(matcount)) {
             if (mustcalc_transposed<2, 0>::calc(matcount)) {
                 partial_eval<0>(r.f0, res, c.epi8_2lsb_mask_128, c.shuf128, c.shift128,
