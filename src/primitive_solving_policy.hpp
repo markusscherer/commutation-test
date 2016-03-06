@@ -9,8 +9,10 @@
 #include "misc_tools.hpp"
 #include "bitset_function.hpp"
 
+template <uint64_t D, uint64_t A1, uint64_t A2>
 struct primitive_solving_policy {
-    template <class F1, class F2> static bool commutes(F1 f1, F2 f2) {
+    template <class F1, class F2>
+    static bool commutes(const F1& f1, const F2& f2) {
         static_assert(F1::domain_size == F2::domain_size,
                       "Domain sizes must match.");
         static_assert(std::is_same<typename F1::element_type,
@@ -38,11 +40,7 @@ struct primitive_solving_policy {
                 }
 
                 args2[i] = f1.eval(args1);
-                //                print_iterable(args1, std::cout, false);
-                //                std::cout << args2[i] << std::endl;
             }
-
-            //            std::cout << std::endl;
 
             r2 = f2.eval(args2);
 
@@ -52,11 +50,7 @@ struct primitive_solving_policy {
                 }
 
                 args1[i] = f2.eval(args2);
-                //                print_iterable(args2, std::cout, false);
-                //                std::cout << args1[i] << std::endl;
             }
-
-            //            std::cout << "......." << std::endl;
 
             r1 = f1.eval(args1);
 

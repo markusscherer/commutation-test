@@ -33,7 +33,7 @@ public:
     static const uint64_t domain_size = D;
     static const uint64_t arity = A;
 
-    template <class T> inline ElementType eval(T args) {
+    template <class T> inline ElementType eval(T args) const {
         const uint64_t width = space_per_element<D>::bits;
         const uint64_t pos = get_pos<D, A, ElementType>(args) * width;
 
@@ -96,7 +96,7 @@ bitset_function_to_array(bitset_function<D, A, ElementType>& f) {
 
 template <uint64_t D, uint64_t A, typename T, typename ElementType = uint64_t>
 bitset_function<D, A, ElementType> array_to_bitset_function(
-    std::array<T, space_per_function<D, A, T>::of_type>& arr) {
+    const std::array<T, space_per_function<D, A, T>::of_type>& arr) {
     const uint64_t width = sizeof(T) * 8;
     bitset_function<D, A, ElementType> f;
 

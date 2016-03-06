@@ -223,6 +223,8 @@ test_ranges(const std::vector<array_function<4, 1, uint8_t>>& v1,
             const std::vector<array_function<4, 3, uint8_t>>& v3,
             const std::vector<array_function<4, 4, uint8_t>>& v4,
             const std::map<std::pair<uint64_t, uint64_t>, range>& ranges) {
+    std::cerr << "Ranges are buggy!!!" << std::endl;
+    exit(2);
 
     typename Tester::matches_type ret;
 
