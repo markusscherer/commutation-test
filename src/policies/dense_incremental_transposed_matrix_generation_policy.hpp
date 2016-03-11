@@ -18,7 +18,7 @@ struct dense_incremental_transposed_matrix_generation_policy<4, 1, 2> {
 
         constants()
             : const0202(
-                  _mm_set_epi8(2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0)) {
+                  _mm_set_epi8(0, 8, 0, 8, 0, 8, 0, 8, 0, 8, 0, 8, 0, 8, 0, 8)) {
         }
     };
 
@@ -27,8 +27,7 @@ struct dense_incremental_transposed_matrix_generation_policy<4, 1, 2> {
         matl = _mm_setzero_si128();
         next_matrix(0, matl, c);
         matl = _mm_sub_epi8(_mm_setzero_si128(), matl);
-        matl = _mm_add_epi8(
-                   matl, _mm_set_epi8(1, 3, 1, 2, 1, 1, 1, 0, 0, 3, 0, 2, 0, 1, 0, 0));
+        matl = _mm_add_epi8(matl, _mm_set_epi16(7, 6, 5, 4, 3, 2, 1, 0));
     }
 
     inline static void next_matrix(uint64_t matcount, __m128i& matl,
