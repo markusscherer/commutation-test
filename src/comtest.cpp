@@ -201,6 +201,7 @@ test_all(const std::vector<array_function<4, 1, uint8_t>>& v1,
 
     if (!v3.empty()) {
         auto tmp = tester::commutation_test(v3, v3);
+        ret = join_matches(ret, tmp);
 
         if (!v4.empty()) {
             tmp = tester::commutation_test(v3, v4);
