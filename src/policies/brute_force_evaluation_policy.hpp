@@ -15,6 +15,108 @@ template <uint64_t D, uint64_t A, class ElementType>
 struct brute_force_evaluation_policy {};
 
 template <class ElementType>
+struct brute_force_evaluation_policy<3, 1, ElementType> {
+    typedef simd_evaluation_constants<4, 4> constants;
+    typedef simd_evaluation_registers<4, 1> registers;
+
+    inline static void init_registers(registers& r,
+                                      array_function<4, 1, ElementType> f,
+                                      const constants& c) {
+        __m128i partial_function = _mm_set1_epi32(f.storage[0] & 0xFF);
+
+        // "blow up" function from packed 2-bit integers to packed 8-bit integers
+
+#ifdef __AVX2__
+        partial_function = _mm_srlv_epi32(partial_function, c.shift128);
+#else
+        __m128i tmp = _mm_srli_epi32(partial_function, 2);
+        partial_function = _mm_blend_epi16(partial_function, tmp, 0xFC);
+        tmp = _mm_srli_epi32(tmp, 2);
+        partial_function = _mm_blend_epi16(partial_function, tmp, 0xF0);
+        tmp = _mm_srli_epi32(tmp, 2);
+        partial_function = _mm_blend_epi16(partial_function, tmp, 0xC0);
+#endif
+
+        partial_function = _mm_and_si128(partial_function, c.epi8_2lsb_mask_128);
+        partial_function = _mm_shuffle_epi8(partial_function, c.shuf128);
+
+        r.f0 = partial_function;
+    }
+
+    inline static void eval(__m128i& res, uint64_t matcount, __m128i& matl,
+                            registers& r, const constants) {
+        res = _mm_shuffle_epi8(r.f0, matl);
+    }
+};
+
+template <class ElementType>
+struct brute_force_evaluation_policy<3, 2, ElementType> {
+    typedef simd_evaluation_constants<4, 4> constants;
+    typedef simd_evaluation_registers<4, 2> registers;
+
+    inline static void init_registers(registers& r,
+                                      array_function<4, 2, ElementType> f,
+                                      const constants& c) {
+        uint32_t tmp_function = 0;
+
+        for (int32_t i = std::max(4 / sizeof(ElementType), 1ul) - 1; i >= 0; --i) {
+            // hopefully this gets optimized away, only relevant of sizeof(T) == 2
+            for (uint32_t k = 0; k < sizeof(ElementType); ++k) {
+                tmp_function <<= 8;
+            }
+
+            tmp_function |= f.storage[i];
+        }
+
+        __m128i partial_function = _mm_set1_epi32(tmp_function);
+
+        // "blow up" function from packed 2-bit integers to packed 8-bit integers
+
+#ifdef __AVX2__
+        partial_function = _mm_srlv_epi32(partial_function, c.shift128);
+#else
+        __m128i tmp = _mm_srli_epi32(partial_function, 2);
+        partial_function = _mm_blend_epi16(partial_function, tmp, 0xFC);
+        tmp = _mm_srli_epi32(tmp, 2);
+        partial_function = _mm_blend_epi16(partial_function, tmp, 0xF0);
+        tmp = _mm_srli_epi32(tmp, 2);
+        partial_function = _mm_blend_epi16(partial_function, tmp, 0xC0);
+#endif
+
+        partial_function = _mm_and_si128(partial_function, c.epi8_2lsb_mask_128);
+        partial_function = _mm_shuffle_epi8(partial_function, c.shuf128);
+
+        r.f0 = partial_function;
+    }
+
+    inline static void eval(__m128i& res, uint64_t matcount, __m128i& matl,
+                            registers& r, const constants&) {
+        res = _mm_shuffle_epi8(r.f0, matl);
+    }
+};
+
+template <class ElementType>
+struct brute_force_evaluation_policy<3, 3, ElementType> {
+    typedef simd_evaluation_constants<4, 4> constants;
+    typedef simd_evaluation_registers<4, 3> registers;
+
+    inline static void init_registers(registers& r,
+                                      array_function<4, 3, ElementType> f) {
+        array_to_si128(f.storage, r.f0);
+    }
+
+    inline static void eval(__m128i& res, uint64_t matcount, __m128i& matl,
+                            __m128i& math, registers& r, const constants& c) {
+        partial_eval<0>(r.f0, res, c.epi8_2lsb_mask_128, c.shuf128, c.shift128,
+                        matl, math);
+        partial_eval<1>(r.f0, res, c.epi8_2lsb_mask_128, c.shuf128, c.shift128,
+                        matl, math);
+        partial_eval<2>(r.f0, res, c.epi8_2lsb_mask_128, c.shuf128, c.shift128,
+                        matl, math);
+    }
+};
+
+template <class ElementType>
 struct brute_force_evaluation_policy<4, 1, ElementType> {
     typedef simd_evaluation_constants<4, 4> constants;
     typedef simd_evaluation_registers<4, 1> registers;

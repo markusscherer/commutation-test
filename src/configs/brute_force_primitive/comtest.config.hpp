@@ -20,6 +20,7 @@
 
 template <uint64_t D, uint64_t A1, uint64_t A2> struct solver {
     typedef uint8_t ElementType;
+    const static uint64_t matrices_per_step = D;
 
     typedef simd_solving_policy<
     D, A1, A2, array_function, ElementType,
@@ -27,18 +28,18 @@ template <uint64_t D, uint64_t A1, uint64_t A2> struct solver {
     incremental_transposed_matrix_generation_policy<D, A1, A2>,
     brute_force_evaluation_policy<D, A1, ElementType>,
     brute_force_evaluation_policy<D, A2, ElementType>,
-    primitive_result_handling_policy<D, A1, A2, ElementType, 4>,
-    4> DefaultImplementation;
+    primitive_result_handling_policy<D, A1, A2, ElementType,
+    matrices_per_step>,
+    matrices_per_step> DefaultImplementation;
 
     static_assert(A1 <= A2, "Please always instantiate with A1 <= A2!");
 
     typedef typename variadic_conditional<
-    vc_tuple<D == 4 && A1 == 1 && A2 == 1,
-             simple_unary_solving_policy<4, ElementType>>,
-             vc_tuple<D == 4, DefaultImplementation>>::type Implementation;
+    vc_tuple<A1 == 1 && A2 == 1, simple_unary_solving_policy<4, ElementType>>,
+             vc_tuple<true, DefaultImplementation>>::type Implementation;
 
-    static inline bool commutes(const array_function<D, A1, ElementType>& f1,
-                                const array_function<D, A2, ElementType>& f2) {
+    static inline bool commutes(const array_function<4, A1, ElementType>& f1,
+                                const array_function<4, A2, ElementType>& f2) {
         return Implementation::commutes(f1, f2);
     }
 };

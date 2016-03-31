@@ -192,10 +192,12 @@ private:
     D, A1, A2, ElementType> TwoHighImplementation;
 
 public:
+    static_assert(D == 3 || D == 4,
+                  "Only defined implementations for D == 3 and D == 4");
     typedef typename variadic_conditional<
-    vc_tuple<D == 4 && A1 >= 3 && A2 >= 3, TwoHighImplementation>,
-             vc_tuple<D == 4 && A1 <= 2 && A2 <= 2, TwoLowImplementation>,
-             vc_tuple<D == 4, MixedImplementation>>::type Implementation;
+    vc_tuple<A1>= 3 && A2 >= 3, TwoHighImplementation>,
+             vc_tuple<A1 <= 2 && A2 <= 2, TwoLowImplementation>,
+             vc_tuple<true, MixedImplementation>>::type Implementation;
 
     typedef typename Implementation::registers registers;
     typedef typename Implementation::constants constants;
