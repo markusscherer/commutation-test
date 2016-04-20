@@ -1,5 +1,5 @@
-INCLUDES=./external/cryptominisat/build/include/
-LIBPATH=./external/cryptominisat/build/lib
+INCLUDES=
+LIBPATH=
 CC=g++
 CFLAGS=-g -std=c++11 -Wall -Wpedantic -msse4.1 -O3 -fwhole-program -I $(INCLUDES) -L $(LIBPATH)
 
@@ -7,9 +7,6 @@ all: bin/comtest bin/packer bin/random_functions bin/satgen
 
 bin/comtest: src/comtest.cpp src/code_generators.hpp src/misc_tools.hpp src/constants.hpp src/primitive_solving_policy.hpp src/sat_solving_policy.hpp src/bitset_function.hpp src/sat_solving_policy.hpp src/simd_solving_policy.hpp src/array_function.hpp src/simd_tools.hpp
 	$(CC) $(CFLAGS) -lcryptominisat4 src/comtest.cpp -o bin/comtest
-
-bin/satgen: src/satgen.cpp src/code_generators.hpp src/misc_tools.hpp src/constants.hpp src/primitive_solving_policy.hpp src/bitset_function.hpp src/matrix_accessor.hpp src/sat_solving_policy.hpp
-	$(CC) $(CFLAGS) -lcryptominisat4 src/satgen.cpp -o bin/satgen
 
 bin/all_ternary: src/all_ternary.cpp src/code_generators.hpp src/misc_tools.hpp src/constants.hpp src/primitive_solving_policy.hpp src/bitset_function.hpp src/matrix_accessor.hpp src/sat_solving_policy.hpp
 	$(CC) $(CFLAGS) src/all_ternary.cpp -o bin/all_ternary
