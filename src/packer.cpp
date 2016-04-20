@@ -178,13 +178,15 @@ template <uint64_t D, uint64_t A> struct read_and_print_compact {
 
 void usage() {
     std::cout << "usage: packer -k | --pack [-i | --in-file FILENAME] [-o | "
-              << "--out-file FILENAME]" << std::endl;
+              << "--out-file FILENAME] [-c]" << std::endl;
     std::cout
             << "       packer -t | --print -a | --arity INT -d | --domain-size INT "
             << std::endl
             << "                     "
-            << "[-i | --in-file FILENAME] [-o | --out-file FILENAME]" << std::endl;
-    std::cout << "       packer -h | --help" << std::endl;
+            << "[-i | --in-file FILENAME] [-o | --out-file FILENAME] [-c]"
+            << std::endl;
+    std::cout << "       packer -h | --help   ";
+    std::cout << "Print this help" << std::endl << std::endl;
     std::cout << std::endl;
     std::cout << "Read function in human-readable format from in-file and and "
               << "print it in packed format to out-file." << std::endl
@@ -192,7 +194,6 @@ void usage() {
     std::cout << "Read function in packed format from in-file and and "
               << "print it in human-readable to out-file." << std::endl
               << std::endl;
-    std::cout << "Print this help" << std::endl << std::endl;
     std::cout << "If no filenames are given, stdin and stdout are assumed."
               << std::endl
               << std::endl;
