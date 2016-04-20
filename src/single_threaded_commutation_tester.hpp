@@ -13,6 +13,7 @@
 
 #include "array_function.hpp"
 #include "bitset_function.hpp"
+#include "sparse_array_function.hpp"
 #include "matches_types.hpp"
 #include "range.hpp"
 
@@ -57,6 +58,32 @@ struct bitset_function_single_threaded_tester_policy {
             for (uint64_t j = A1 != A2 ? 0 : i; j < vec2.size(); ++j) {
                 const auto f2 =
                     array_to_bitset_function<D, A2, uint8_t, uint8_t>(vec2[j].storage);
+
+                if (solver<D, A1, A2>::commutes(f1, f2)) {
+                    matches.add(i, j, A1, A2);
+                }
+            }
+        }
+
+        return matches;
+    }
+};
+
+template <uint64_t D, uint64_t A1, uint64_t A2, class MatchesType>
+struct sparse_array_function_single_threaded_tester_policy {
+    typedef MatchesType matches_type;
+
+    static inline matches_type
+    commutation_test(const std::vector<array_function<D, A1, uint8_t>>& vec1,
+                     const std::vector<array_function<D, A2, uint8_t>>& vec2,
+                     const range& r) {
+        matches_type matches;
+
+        for (uint64_t i = 0; i < vec1.size(); ++i) {
+            const auto f1 = sparse_array_function<D, A1>(vec1[i]);
+
+            for (uint64_t j = A1 != A2 ? 0 : i; j < vec2.size(); ++j) {
+                const auto f2 = sparse_array_function<D, A2>(vec2[j]);
 
                 if (solver<D, A1, A2>::commutes(f1, f2)) {
                     matches.add(i, j, A1, A2);
