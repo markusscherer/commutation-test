@@ -19,19 +19,10 @@ template <class Tester>
 typename Tester::matches_type
 test_all(const std::vector<array_function<4, 1, uint8_t>>& v1,
          const std::vector<array_function<4, 2, uint8_t>>& v2,
-         const std::vector<array_function<4, 3, uint8_t>>& v3,
-         const std::vector<array_function<4, 4, uint8_t>>& v4);
-
-template <class Tester>
-typename Tester::matches_type
-test_ranges(const std::vector<array_function<4, 1, uint8_t>>& v1,
-            const std::vector<array_function<4, 2, uint8_t>>& v2,
-            const std::vector<array_function<4, 3, uint8_t>>& v3,
-            const std::vector<array_function<4, 4, uint8_t>>& v4,
-            const std::map<std::pair<uint64_t, uint64_t>, range>& ranges);
+         const std::vector<array_function<4, 3, uint8_t>>& v3);
 
 int main(int argc, char **argv) {
-    const uint64_t D = 4;
+    const uint64_t D = 3;
 
     if (argc < 2) {
         return 1;
@@ -81,6 +72,9 @@ int main(int argc, char **argv) {
                 return 0;
             }
         } else if (s == "--functions-4" || s == "-4") {
+            std::cerr << "--functions-4 not supported!" << std::endl;
+            return 1;
+
             if (infilenames[3].empty()) {
                 argparse >> infilenames[3];
             } else {
@@ -102,10 +96,9 @@ int main(int argc, char **argv) {
 
     tester::init(options);
 
-    std::vector<array_function<D, 1, uint8_t>> v1;
-    std::vector<array_function<D, 2, uint8_t>> v2;
-    std::vector<array_function<D, 3, uint8_t>> v3;
-    std::vector<array_function<D, 4, uint8_t>> v4;
+    std::vector<array_function<4, 1, uint8_t>> v1;
+    std::vector<array_function<4, 2, uint8_t>> v2;
+    std::vector<array_function<4, 3, uint8_t>> v3;
 
     if (!infilenames[0].empty()) {
         v1 = read_functions<4, 1>(infilenames[0]);
@@ -119,18 +112,12 @@ int main(int argc, char **argv) {
         v3 = read_functions<4, 3>(infilenames[2]);
     }
 
-    if (!infilenames[3].empty()) {
-        v4 = read_functions<4, 4>(infilenames[3]);
-    }
-
     typename tester::matches_type matches;
 
     auto start = std::chrono::high_resolution_clock::now();
 
     if (ranges.empty()) {
-        matches = test_all<tester>(v1, v2, v3, v4);
-    } else {
-        matches = test_ranges<tester>(v1, v2, v3, v4, ranges);
+        matches = test_all<tester>(v1, v2, v3);
     }
 
     auto end = std::chrono::high_resolution_clock::now();
@@ -162,8 +149,7 @@ template <class Tester>
 typename Tester::matches_type
 test_all(const std::vector<array_function<4, 1, uint8_t>>& v1,
          const std::vector<array_function<4, 2, uint8_t>>& v2,
-         const std::vector<array_function<4, 3, uint8_t>>& v3,
-         const std::vector<array_function<4, 4, uint8_t>>& v4) {
+         const std::vector<array_function<4, 3, uint8_t>>& v3) {
     typename Tester::matches_type ret;
 
     if (!v1.empty()) {
@@ -179,11 +165,6 @@ test_all(const std::vector<array_function<4, 1, uint8_t>>& v1,
             tmp = tester::commutation_test(v1, v3);
             ret = join_matches(ret, tmp);
         }
-
-        if (!v4.empty()) {
-            tmp = tester::commutation_test(v1, v4);
-            ret = join_matches(ret, tmp);
-        }
     }
 
     if (!v2.empty()) {
@@ -194,25 +175,10 @@ test_all(const std::vector<array_function<4, 1, uint8_t>>& v1,
             tmp = tester::commutation_test(v2, v3);
             ret = join_matches(ret, tmp);
         }
-
-        if (!v4.empty()) {
-            tmp = tester::commutation_test(v2, v4);
-            ret = join_matches(ret, tmp);
-        }
     }
 
     if (!v3.empty()) {
         auto tmp = tester::commutation_test(v3, v3);
-        ret = join_matches(ret, tmp);
-
-        if (!v4.empty()) {
-            tmp = tester::commutation_test(v3, v4);
-            ret = join_matches(ret, tmp);
-        }
-    }
-
-    if (!v4.empty()) {
-        auto tmp = tester::commutation_test(v4, v4);
         ret = join_matches(ret, tmp);
     }
 
